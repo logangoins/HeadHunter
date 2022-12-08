@@ -1,0 +1,4 @@
+#!/bin/bash
+
+gcc socketServer.c -o server
+gcc socketClient.c -o client

@@ -39,7 +39,7 @@ int main(){
         fgets(message, 100, stdin);
         printf("Message: %s\n", message);
         fflush(stdout);
-        send(fd, message, strlen(message), 0);
+        send(conn, message, strlen(message), 0);
         printf("Hehe - michael jackson\n");
         while (recv(conn, message, 100, 0) > 0) {
           printf("Message Received: %s\n", message);
