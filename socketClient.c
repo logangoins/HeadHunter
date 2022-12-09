@@ -26,24 +26,21 @@ int main(){
   inet_pton(AF_INET, "127.0.0.1", &serv.sin_addr); //Binds client to localhost
 
   connect(fd, (struct sockaddr *)&serv, sizeof(serv)); //connects client to server
-  printf("Burger\n");
+  
   conn = accept(fd, (struct sockaddr *)NULL, NULL);
-  printf("Conneatataysdjf\n");
+ 
   while(1){
     fflush(stdout);
-    //while (recv(conn, &message, 100, 0) > 0) {
-    valread = read(fd, message, 100);
-    if(valread > 0){
-      printf("gotted\n");
-      printf("Message Received: %s\n", message);
-    }  
-    //strcpy(message, "");
-    //}
-  }
-    
 
-  printf("Burger");
-  //}
+    valread = read(fd, message, 100);
+    
+    if(valread > 0){
+
+      printf("Message Received: %s\n", message);
+    
+    }  
+  
+}
 
   return 0;
 }

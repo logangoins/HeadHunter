@@ -30,21 +30,28 @@ int main(){
   bind(fd, (struct sockaddr *)&serv, sizeof(serv)); //Assigns address to the socket
 
   listen(fd, 5); //Listen for client connections. Maximum 5 connections
+
+  printf("Listener started...\n");
+
   while(conn = accept(fd, (struct sockaddr *)NULL, NULL)) {
       int pid;
       if((pid = fork()) == 0){
-
-        printf("Enter a message: ");
         
-        fgets(message, 100, stdin);
-        printf("Message: %s\n", message);
-        fflush(stdout);
-        send(conn, message, strlen(message), 0);
-        printf("Hehe - michael jackson\n");
+        printf("Connection received. Starting session %i\n", conn);
+    
+        while(1){
+        
+          fgets(message, 100, stdin);
+          fflush(stdout);
+          send(conn, message, strlen(message), 0);
+        
+        }
+        /*
         while (recv(conn, message, 100, 0) > 0) {
           printf("Message Received: %s\n", message);
           strcpy(message, "");
-        }
+        }*/
+
       }
     }
   
