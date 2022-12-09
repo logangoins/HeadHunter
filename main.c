@@ -23,7 +23,12 @@ int main(){
     {
       printf("data[%i] = %s\n", i+1, data[i]);
     }
-  
+    
+  for(int i = 0; data[i]; i++){
+    if(data[i] == "(null)"){
+      printf("Burger\n");
+    }
+  }
   
 
   return 0;
