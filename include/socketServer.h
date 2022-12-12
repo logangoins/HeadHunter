@@ -48,7 +48,7 @@ int startserv(int port){
           valread = read(conn, output, 100);
           if(valread > 0){
 
-            printf("%s\n", output);
+            printf("\n%s\n", output);
 
           }
           strcpy(output, " ");

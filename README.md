@@ -16,10 +16,9 @@
 
 ```
 
-# Dependencies
+## Dependencies
 mingw-w64
 
 gcc
 
 positive attitude
-

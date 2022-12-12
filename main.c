@@ -3,9 +3,10 @@
 //
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
+// TODO:
 // Include generate functionality, per platform
-// allow payload to send commands back
-
+// redirect stderr
+// encode/obfuscate payload
 
 
 #include "include/socketServer.h"
