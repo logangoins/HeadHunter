@@ -45,14 +45,13 @@ int startserv(int port){
           fgets(message, 100, stdin);
           fflush(stdout);
           send(conn, message, strlen(message), 0);
-          valread = read(fd, output, 100);
-
+          valread = read(conn, output, 100);
           if(valread > 0){
 
             printf("%s\n", output);
-            printf("Outputtime\n");
-          }
 
+          }
+          strcpy(output, " ");
         }
         
       }
