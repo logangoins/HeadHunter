@@ -33,12 +33,17 @@ __________                          .__  __
 
 )EOF");
 
-  if(argc == 2 && strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0){
-    printf("\nCommands\n--------------------------------------\n");
-    printf("-h, --help                                      displays this help menu\n");
-    printf("-l, --listen <port>                             starts a listening C2 server on a specified port\n");
-    printf("-g, --generate <platform> -o <outputfile>       generates a reverse shell payload to connect back to a recruiter session\n\n");
-  } 
+
+  if(argc <= 1){
+    printf("No command specified, type \"recruiter --help\" for a list of commands\n\n");
+  }
+
+  else if(argc > 0 && strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0){
+  printf("\nCommands\n--------------------------------------\n");
+  printf("-h, --help                                      displays this help menu\n");
+  printf("-l, --listen <port>                             starts a listening C2 server on a specified port\n");
+  printf("-g, --generate <platform> -o <outputfile>       generates a reverse shell payload to connect back to a recruiter session\n\n");
+  }  
 
   else if(argc > 1 && strcmp(argv[1], "--listen") == 0 || strcmp(argv[1], "-l") == 0){
     if (argc < 3){
@@ -51,7 +56,7 @@ __________                          .__  __
   }
 
   else if(argc >= 5 && strcmp(argv[1], "--generate") == 0 || strcmp(argv[1], "-g") == 0){
-
+    printf("Generate good times comeon\n");
   }
 
   else {
