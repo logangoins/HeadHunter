@@ -8,6 +8,8 @@
 // Include session switching
 // write a more feature driven payload housing (meterpreter like)
 // encode/obfuscate payload
+// create installer
+// encrypt connections
 
 #include "include/socketServer.h"
 #include <stdlib.h>
@@ -45,15 +47,15 @@ int main(int argc, char **argv){
   }
 
   else if(argc > 0 && strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0){
-  printf("\nCommands\n--------------------------------------\n");
-  printf("-h, --help                                                                     displays this help menu\n");
-  printf("-l, --listen <port>                                                            starts a listening C2 server on a specified port\n");
-  printf("-g, --generate <Payload Generation Options>                                    generates a reverse shell payload to connect back to a recruiter session\n\n");
-  printf("\nPayload Generation Options\n--------------------------------------\n");
-  printf("-p, --port <port>                         port for the reverse shell to connect back on\n");
-  printf("-o, --output <outputfile>                 file to output payload to\n");
-  printf("-w, --platform <platform>                 file payload platform specific (linux or windows)\n");
-  printf("-l, --localhost <address>                 address that the payload will connect back to (address of attacker C2 server)\n\n");
+    printf("\nCommands\n--------------------------------------------------------\n");
+    printf("-h, --help                                             displays this help menu\n");
+    printf("-l, --listen <port>                                    starts a listening C2 server on a specified port\n");
+    printf("-g, --generate <Payload Generation Options>            generates a reverse shell payload to connect back to a recruiter session\n\n");
+    printf("\nPayload Generation Options\n--------------------------------------------------------\n");
+    printf("-p, --port <port>                                      port for the reverse shell to connect back on\n");
+    printf("-o, --output <outputfile>                              file to output payload to\n");
+    printf("-w, --platform <platform>                              file payload platform specific (linux or windows)\n");
+    printf("-l, --localhost <address>                              address that the payload will connect back to (address of attacker C2 server)\n\n");
   }  
 
   else if(argc > 1 && strcmp(argv[1], "--listen") == 0 || strcmp(argv[1], "-l") == 0){
