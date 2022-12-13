@@ -4,7 +4,9 @@
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
-// Include generate functionality, per platform
+// Include generate functionality for windows
+// Include session switching
+// write a more feature driven payload housing (meterpreter like)
 // encode/obfuscate payload
 
 #include "include/socketServer.h"
