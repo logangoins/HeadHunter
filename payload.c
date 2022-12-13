@@ -19,7 +19,6 @@ char shell[10000];
 char redirect[100] = " >/dev/null 2>&1";
 
 int main(){
-  printf("It works!\n");
   char ip[] = target;
   int port = PORT;
 
