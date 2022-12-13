@@ -59,13 +59,15 @@ int main(int argc, char **argv){
   }  
 
   else if(argc > 1 && strcmp(argv[1], "--listen") == 0 || strcmp(argv[1], "-l") == 0){
+    int port;
     if (argc < 3){
-      printf("Please supply a port for the server to listen on\n\n");
+      printf("Please supply a port for the server to listen on: \n");
+      scanf("%d", port);
     } 
     else{
-    int port = (int) strtol(argv[2], (char **)NULL, 10);
-    startserv(port);
+      port = (int) strtol(argv[2], (char **)NULL, 10);
     }
+    startserv(port);
   }
   
 
