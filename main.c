@@ -163,7 +163,7 @@ int main(int argc, char **argv){
 
       }
       else{
-         prinf("Please enter a valid platform\n");
+         printf("Please enter a valid platform\n");
       }
     }
   }
