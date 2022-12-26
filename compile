@@ -1,3 +1,2 @@
 #!/bin/bash
-gcc payload.c -D PORT=4444 -D target=\"127.0.0.1\" -o payload
 gcc main.c -o headhunter

