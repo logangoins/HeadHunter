@@ -4,8 +4,6 @@
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
-// rewrite windows payload
-// figure out stdin writing on socket
 // Include session switching
 // write a more feature driven payload housing (meterpreter like)
 // encode/obfuscate payload
