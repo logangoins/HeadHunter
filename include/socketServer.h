@@ -1,64 +1,167 @@
+
+#include <netdb.h>
+#include <pthread.h>
 #include <stdio.h>
-#include <sys/socket.h> //For Sockets
 #include <stdlib.h>
-#include <netinet/in.h> //For the AF_INET (Address Family)
 #include <string.h>
-#include <sys/types.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
-
-struct sockaddr_in serv; //Main socket variable
-int fd; //socket identifier (file descripter)
-int conn; //connection identifier (connection file descripter)
-char message[100] = ""; //array to store messages
-int valread;
-char output[100] = ""; //array to gather output from infected target
+#define MAXBUF 65536
+#define BACKLOG 1
 
 
+typedef struct args
+{
+    int src;
+    int dest;
+} args;
 
+void *Thread(void *arg)
+{
+    
+    args a = *(args *)arg;
+    int n;
+    char buffer[MAXBUF];
 
-int startserv(int port){
-  
-  serv.sin_family = AF_INET;
-  serv.sin_port = htons(port); //Listening port definition
-  serv.sin_addr.s_addr = INADDR_ANY;
-
-  fd = socket(AF_INET, SOCK_STREAM, 0); //Creates socket and returns identifier to fd
-
-  
-  if(fd < 0){
-    printf("Error"); //used to test if the socket is already in use
-    exit(0);
-  }
-
-
-  bind(fd, (struct sockaddr *)&serv, sizeof(serv)); //Assigns address to the socket
-
-  listen(fd, 5); //Listen for client connections. Maximum 5 connections
-
-  printf("Listener started on port %i...\n", port);
-
-  while(conn = accept(fd, (struct sockaddr *)NULL, NULL)) {
-      int pid;
-
-      if((pid = fork()) == 0){
-        
-        printf("Connection received. Starting session %i\n", conn);
-       
-        while(1){
-          fgets(message, 100, stdin);
-          fflush(stdout);
-          send(conn, message, strlen(message), 0);
-          valread = read(conn, output, 100);
-          if(valread > 0){
-
-            printf("\n%s\n", output);
-            strcpy(output, " ");
-          }
-
-        }
-        
-      }
+    while ((n = read(a.src, buffer, MAXBUF - 1)) > 0)
+    {
+        write(a.dest, buffer, n);
     }
-  return 0;
+
+    if (n == -1)
+    {
+        printf("Error in function thread read()\n");
+    }
+
+    return NULL;
 }
+
+int CreateServerSocket(char *address, char *port, int *type, int *family)
+{
+    int sockfd, gai_error;
+    struct addrinfo hints, *servinfo, *p;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = *family;
+    hints.ai_socktype = *type;
+    hints.ai_flags = AI_PASSIVE;
+
+    if ((gai_error = getaddrinfo(address, port, &hints, &servinfo)) != 0)
+    {
+        fprintf(stderr, "netcat: error in getaddrinfo(): %s\n", gai_strerror(gai_error));
+        exit(0);
+    }
+
+    for (p = servinfo; p != NULL; p = p->ai_next)
+    {
+        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+
+        if (sockfd == -1)
+        {
+            perror("netcat: error in socket()");
+            continue;
+        }
+
+        if (*type == SOCK_STREAM)
+        {
+            int sockopt = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+
+            if (sockopt == -1)
+            {
+                printf("Error in function setsockopt\n");
+            }
+        }
+
+        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
+        {
+            close(sockfd);
+            perror("netcat: error in bind()");
+            continue;
+        }
+
+        break;
+    }
+
+    if (p == NULL)
+    {
+        printf("netcat: error could not bind\n");
+        exit(0);
+    }
+
+    if (*type == SOCK_STREAM && listen(sockfd, BACKLOG) == -1)
+    {
+        printf("Error in function listen\n");
+    }
+
+    freeaddrinfo(servinfo);
+    return sockfd;
+}
+
+
+void Server(char *address, char *port, int *type, int *family)
+{
+    int serverfd, clientfd, n;
+    char buffer[MAXBUF];
+    pthread_t printer;
+    socklen_t len;
+    struct sockaddr_storage cli;
+
+    serverfd = CreateServerSocket(address, port, type, family);
+    len = sizeof cli;
+
+    if (*type == SOCK_STREAM && (clientfd = accept(serverfd, (struct sockaddr *)&cli, &len)) == -1)
+    {
+        printf("Error in function accept()\n");
+    }
+    else if (*type == SOCK_DGRAM)
+    {
+        clientfd = serverfd;
+
+        if ((n = recvfrom(serverfd, buffer, MAXBUF - 1, 0, (struct sockaddr *)&cli, &len)) == -1)
+        {
+            printf("Error in functon recvfrom()\n");
+        }
+
+        if (write(STDOUT_FILENO, buffer, n) == -1)
+        {
+            printf("Error in function write()\n");
+        }
+
+        if (connect(serverfd, (struct sockaddr *)&cli, len) == -1)
+        {
+          printf("Error in function connect()\n");
+        }
+    }
+
+    args a;
+    a.src = STDIN_FILENO;
+    a.dest = clientfd;
+
+    if (pthread_create(&printer, NULL, Thread, (void *)&a) != 0)
+    {
+        printf("Error in function pthread_create\n");
+    }
+
+    while ((n = read(clientfd, buffer, MAXBUF)) > 0)
+    {
+        if (write(STDOUT_FILENO, buffer, n) == -1)
+        {
+            printf("Error in function write()\n");
+        }
+    }
+
+    if (n == -1)
+    {
+        printf("Error in function read()\n");
+    }
+
+    pthread_cancel(printer);
+    pthread_join(printer, NULL);
+
+    close(clientfd);
+    close(serverfd);
+
+}
+
+

