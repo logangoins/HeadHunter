@@ -95,6 +95,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
     }
 
     freeaddrinfo(servinfo);
+    printf("Listener started... awaiting connection\n");
     return sockfd;
 }
 
@@ -137,6 +138,8 @@ void Server(char *address, char *port, int *type, int *family)
     args a;
     a.src = STDIN_FILENO;
     a.dest = clientfd;
+    
+    printf("Connection received - starting session %i\n", a.dest);
 
     if (pthread_create(&printer, NULL, Thread, (void *)&a) != 0)
     {

