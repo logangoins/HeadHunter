@@ -43,7 +43,7 @@ int main(int argc, char **argv){
 
 
   if(argc <= 1){
-    printf("No command specified, type \"recruiter --help\" for a list of commands\n\n");
+    printf("No command specified, type \"./headhunter --help\" for a list of commands\n\n");
   }
 
   else if((argc > 0 && strcmp(argv[1], "--help") == 0) || strcmp(argv[1], "-h") == 0){
