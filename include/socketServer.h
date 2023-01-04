@@ -49,7 +49,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 
     if ((gai_error = getaddrinfo(address, port, &hints, &servinfo)) != 0)
     {
-        fprintf(stderr, "netcat: error in getaddrinfo(): %s\n", gai_strerror(gai_error));
+        fprintf(stderr, "Error in getaddrinfo(): %s\n", gai_strerror(gai_error));
         exit(0);
     }
 
@@ -59,7 +59,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 
         if (sockfd == -1)
         {
-            perror("netcat: error in socket()");
+            perror("Error in socket()");
             continue;
         }
 
@@ -76,7 +76,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
         if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
         {
             close(sockfd);
-            perror("netcat: error in bind()");
+            perror("Error in bind()");
             continue;
         }
 
@@ -85,7 +85,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 
     if (p == NULL)
     {
-        printf("netcat: error could not bind\n");
+        printf("Error could not bind\n");
         exit(0);
     }
 
