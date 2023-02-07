@@ -5,10 +5,6 @@
 // that any user commits using this software.
 // TODO:
 // Include session switching
-// write a more feature driven payload housing (meterpreter like)
-// encode/obfuscate payload
-// encrypt connections
-// make installer
 // Display IP address of connecting device
 
 #include "include/socketServer.h"
