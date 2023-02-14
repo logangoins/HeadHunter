@@ -1,4 +1,4 @@
-
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -139,8 +139,13 @@ void Server(char *address, char *port, int *type, int *family)
     a.src = STDIN_FILENO;
     a.dest = clientfd;
     
-    printf("Connection received - starting session %i\n", a.dest);
+    struct sockaddr_in* pV4Addr = (struct sockaddr_in*)&cli;
+    struct in_addr ipAddr = pV4Addr->sin_addr;
 
+    char victim_address[INET_ADDRSTRLEN];
+    inet_ntop( AF_INET, &ipAddr, victim_address, INET_ADDRSTRLEN );
+    printf("Connection received - starting session %i with victim %s\n", a.dest, victim_address);
+    
     if (pthread_create(&printer, NULL, Thread, (void *)&a) != 0)
     {
         printf("Error in function pthread_create\n");

