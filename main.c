@@ -1,5 +1,6 @@
 // Headhunter Command and Control Server (C2) and payload generator
-// Author: Logan Goins
+// Authors: Logan Goins and Lena Matherne
+// 
 //
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
@@ -111,7 +112,8 @@ void run_server(char* port) {
                          ░                                                           
 
   Command and Control Server (C2) and Payload Generator
-  Author: Logan Goins
+  Authors: Logan Goins and Lena Matherne
+
 
 
   )EOF");
