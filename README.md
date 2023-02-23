@@ -21,7 +21,6 @@ and 32 bit operating systems. Note that a standard netcat reverse shell with the
 -e flag is compatible with Headhunter. 
 
 ## Extra Notes
-Currently the Windows payload is still in development but Headhunter works perfectly fine with most reverse shell payloads, including netcat and reverse shells written in python3.
 
 I am not liable for any damage caused by this software. This software is for educational purposes only. This software is under the discretion of the end user.
 

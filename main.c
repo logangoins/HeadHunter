@@ -1,12 +1,11 @@
 // Headhunter Command and Control Server (C2) and payload generator
-// Authors: Logan Goins and Lena Matherne
+// Authors: Logan Goins and Lena
 // 
 //
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
 // Include session switching
-// Display IP address of connecting device
 
 #include "include/socketServer.h"
 #include <stdlib.h>
