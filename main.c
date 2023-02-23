@@ -7,7 +7,7 @@
 // TODO:
 // Include session switching
 
-#include "include/socketServer.h"
+#include "include/server.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
