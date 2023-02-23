@@ -112,7 +112,7 @@ void run_server(char* port) {
                          ░                                                           
 
   Command and Control Server (C2) and Payload Generator
-  Authors: Logan Goins and Lena Matherne
+  Authors: Logan Goins and Lena
 
 
 
