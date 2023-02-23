@@ -36,7 +36,7 @@ bool generate_key()
 	bp_private = BIO_new_file("private.pem", "w+");
 	ret = PEM_write_bio_RSAPrivateKey(bp_private, r, NULL, NULL, 0, NULL, NULL);
 
-	// 4. free
+	// free
 free_all:
 
 	BIO_free_all(bp_public);
