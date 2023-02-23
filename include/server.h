@@ -115,25 +115,7 @@ void Server(char *address, char *port, int *type, int *family)
     {
         printf("Error in function accept()\n");
     }
-    else if (*type == SOCK_DGRAM)
-    {
-        clientfd = serverfd;
-
-        if ((n = recvfrom(serverfd, buffer, MAXBUF - 1, 0, (struct sockaddr *)&cli, &len)) == -1)
-        {
-            printf("Error in functon recvfrom()\n");
-        }
-
-        if (write(STDOUT_FILENO, buffer, n) == -1)
-        {
-            printf("Error in function write()\n");
-        }
-
-        if (connect(serverfd, (struct sockaddr *)&cli, len) == -1)
-        {
-          printf("Error in function connect()\n");
-        }
-    }
+    
 
     args a;
     a.src = STDIN_FILENO;
