@@ -26,4 +26,29 @@ int sendfile(char* file, int sfd){
   fclose(fp);
  
   return 0;
-} 
+}
+
+int recvfile(char* file, int rfd){
+  FILE* fp = fopen(file , "wb");
+  int tot = 0;
+  char buff[1025];
+  int b;
+
+  if(fp != NULL){
+    while( (b = recv(rfd, buff, 1024,0))> 0 ) {
+      tot+=b;
+      fwrite(buff, 1, b, fp);
+    }
+
+    printf("Received byte: %d\n",tot);
+    if (b<0)
+      perror("Error receiving file...\n");
+
+    fclose(fp);
+  } 
+  else {
+    perror("Error Receiving file...\n");
+        }
+
+  return 0;
+}
