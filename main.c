@@ -5,7 +5,11 @@
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
-// Include session switching
+// Include session switching through threaded accept function
+// Implement command session command "exfil", which allows you to exfil files.
+// Comment payload which is now far more advanced
+// Add better error handling on payload, as well is implement persistance methods
+// Update Windows payload to be similar to GNU/Linux payload
 
 #include "include/server.h"
 #include <stdlib.h>
