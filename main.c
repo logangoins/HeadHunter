@@ -6,9 +6,6 @@
 // that any user commits using this software.
 // TODO:
 // Include session switching
-// Fully comment server.h 
-// Include ability to exit shell session and send other commands to payload (File transfers, etc)
-// Thread accept() function and organize file descriptors into an array to allow multiple connections.
 
 #include "include/server.h"
 #include <stdlib.h>
