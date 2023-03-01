@@ -34,13 +34,21 @@ make
 ## Installation 
 
 1. Clone the repository
-``` git clone https://github.com/Lionskey/HeadHunter.git```
+``` 
+git clone https://github.com/Lionskey/HeadHunter.git
+```
 
 2. Change directory to source tree
-``` cd HeadHunter/```
+``` 
+cd HeadHunter/
+```
 
 3. Install HeadHunter binary and payload source
-``` sudo make install```
+```
+sudo make install
+```
 
 4. Enjoy
-``` headhunter --help``` 
+``` 
+headhunter --help
+``` 
