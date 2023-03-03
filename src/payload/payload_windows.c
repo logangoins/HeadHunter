@@ -14,7 +14,6 @@ int main(void) {
 
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2 ,2), &wsaData) != 0) {
-		write(2, "[ERROR] WSASturtup failed.\n", 27);
 		return (1);
 	}
 
@@ -31,7 +30,6 @@ int main(void) {
 	}
 #else
 	if (connect(sockt, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
-		write(2, "[ERROR] connect failed.\n", 24);
 		return (1);
 	}
 #endif
