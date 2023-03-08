@@ -41,9 +41,7 @@ void *Acceptor(void *arg){
 			client_socket[i] = 0;
 		}
 
-		while(1){
-				
-				
+		while(1){	
 				FD_ZERO(&readfds);
 				FD_SET(master_socket, &readfds);
 				max_sd = master_socket;
@@ -225,9 +223,6 @@ void Server(char *address, char *port, int *type, int *family)
     // Passes arguments to the thread struct
     a.src = STDIN_FILENO;
 		a.dest = client_socket[0];
-		printf("client fd is %i\n", a.dest); 
-
-
  		printf("Type \"help\" to see a list of payload commands\n");
 
     // creates thread that will run parallel with the rest of the code to handle connection operations
