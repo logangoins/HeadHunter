@@ -225,7 +225,6 @@ void Server(char *address, char *port, int *type, int *family)
     // Passes arguments to the thread struct
     a.src = STDIN_FILENO;
 		a.dest = client_socket[0];
-		printf("client fd is %i\n", a.dest); 
 
 
  		printf("Type \"help\" to see a list of payload commands\n");
