@@ -15,6 +15,11 @@
   Author: Logan Goins
 
 ```
+
+# ATTENTION
+## Current development on this project has moved to https://github.com/Lionskey/HeadHunter
+
+
 HeadHunter is a reverse shell (C2) Command and Control Server for GNU Linux and Unix like systems. 
 HeadHunter has functionality to generate payloads for GNU Linux and Windows 64
 and 32 bit operating systems. Note that a standard netcat reverse shell with the
