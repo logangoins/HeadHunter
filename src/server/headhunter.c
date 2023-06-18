@@ -1,14 +1,14 @@
-// Headhunter Command and Control Server (C2) and payload generator
+// Headhunter - Reverse shell handler and payload generator
 // Authors: Logan Goins and Lena
 // 
 //
 // I am not liable for any malicious or illegal action
 // that any user commits using this software.
 // TODO:
-// Include session switching through threaded accept function
 // Implement command session command "exfil", which allows you to exfil files.
 // Comment payload which is now far more advanced
 // Add better error handling on payload, as well is implement persistance methods
+// Implement RSA 2048 asymmetric encryption 
 
 #include "server.c"
 #include <stdlib.h>
