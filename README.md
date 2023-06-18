@@ -11,7 +11,7 @@
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░
                          ░
 
-  Command and Control Server (C2) and Payload Generator
+  Reverse Shell Handler and Payload Generator
   Author: Logan Goins
 
 ```
