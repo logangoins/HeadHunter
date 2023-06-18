@@ -113,8 +113,8 @@ void run_server(char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-  Command and Control Server (C2) and Payload Generator
-  Authors: Logan Goins and Lena
+  Reverse Shell Handler and Payload Generator
+  Author: Logan Goins
 
 
 
