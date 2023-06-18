@@ -93,7 +93,7 @@ void help() {
   printf("-p, --port <port>                                      port for the reverse shell to connect back on\n");
   printf("-o, --output <outputfile>                              file to output payload to\n");
   printf("-w, --platform <platform>                              file payload platform specific (linux, win32, or win64)\n");
-  printf("-l, --localhost <address>                              address that the payload will connect back to (address of attacker C2 server)\n\n");
+  printf("-l, --localhost <address>                              address that the payload will connect back to (address of attacker server)\n\n");
 }
 
 void run_server(char* port) {
