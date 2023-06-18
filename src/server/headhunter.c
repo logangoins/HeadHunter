@@ -87,7 +87,7 @@ void help() {
 
   printf("\nCommands\n--------------------------------------------------------\n");
   printf("-h, --help                                             displays this help menu\n");
-  printf("-l, --listen <port>                                    starts a listening C2 server on a specified port\n");
+  printf("-l, --listen <port>                                    starts a listening HeadHunter server on a specified port\n");
   printf("-g, --generate <Payload Generation Options>            generates a reverse shell payload to connect back to a recruiter session\n\n");
   printf("\nPayload Generation Options\n--------------------------------------------------------\n");
   printf("-p, --port <port>                                      port for the reverse shell to connect back on\n");
