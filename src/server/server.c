@@ -91,17 +91,16 @@ void *Acceptor(void *arg){
 						exit(EXIT_FAILURE);
 			
 					}
-							
-					printf("Connection received with %s\n", inet_ntoa(cli.sin_addr));
 					// add new socket to an array of sockets
 					
 					for (i = 0; i < max_clients; i++) {
 					
 						// only if position is empty
 						if( client_socket[i] == 0 ){
-						
+					
 							client_socket[i] = new_socket;
-							printf("Adding as session %d\n" , i+1);
+                            getpeername(new_socket, (struct sockaddr *)&cli, &len);
+                            printf("Connection received with %s\n\n", inet_ntoa(cli.sin_addr));
 								
 							break;
 						}
