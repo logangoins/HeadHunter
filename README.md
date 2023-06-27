@@ -17,7 +17,7 @@
 ```
 
 
-HeadHunter is a reverse shell handler for GNU Linux and Unix like systems. 
+HeadHunter is a reverse shell handler for GNU Linux based operating systems. 
 HeadHunter has functionality to generate payloads for GNU Linux and Windows 64
 and 32 bit operating systems. Note that a standard netcat reverse shell with the
 -e flag is compatible with HeadHunter. HeadHunter is also compatible with many other reverse shell alternatives. 
