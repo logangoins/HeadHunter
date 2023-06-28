@@ -1,6 +1,6 @@
 serverfiles := ${wildcard src/server/*}
 headhunter: ${serverfiles}
-	gcc -Wall src/server/headhunter.c -o headhunter -lpthread
+	cc -Wall src/server/headhunter.c -o headhunter -lpthread
 
 install: headhunter
 	cp headhunter /usr/bin/
