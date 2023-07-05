@@ -24,7 +24,7 @@ and 32 bit operating systems. Note that a standard netcat reverse shell with the
 
 ## Notes
 
-HeadHunter operates very similar to a netcat listener, if a full TTY session is required you have to spawn it yourself with a command like this:
+HeadHunter operates very similar to a netcat listener, if a full TTY session on a GNU/Linux machine is required you have to spawn it yourself with a command like this:
 ```
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
