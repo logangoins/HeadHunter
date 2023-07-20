@@ -29,16 +29,16 @@ python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```
 or any of its alternatives
 
--------------------
-TODO:
-Encrypt the session with RSA 2048 with openssl library
 
--------------------
+Currently a Windows payload is in development, so you will have to specify "linux" on the -w flag even if no other options exist. 
+Specifying "win64" or "win32" with the -w flag will cause a compiler error because HeadHunter will attempt to compile a file that doesn't exist.
+I recommend https://www.revshells.com/ for Powershell reverse shell one-liners if the target operating system is Windows.
+
 
 I am not liable for any damage caused by this software. This software is for educational purposes only. This software is under the discretion of the end user.
 
 ## Dependencies
-mingw-w64 (For cross compliation to Windows)
+mingw-w64 (For cross compliation to Windows eventually)
 
 gcc
 
