@@ -18,9 +18,8 @@
 
 
 HeadHunter is a reverse shell handler for GNU Linux based operating systems. 
-HeadHunter has functionality to generate payloads for GNU Linux and Windows 64
-and 32 bit operating systems. Note that a standard netcat reverse shell with the
--e flag is compatible with HeadHunter. HeadHunter is also compatible with many other reverse shell alternatives. 
+HeadHunter has functionality to generate binary payloads for GNU Linux.
+For Windows operating system targets you can use any other reverse shell payload (netcat, powershell, etc.)
 
 ## Notes
 
