@@ -52,7 +52,7 @@ cd HeadHunter/
 
 3. Install HeadHunter binary and payload source
 ```
-sudo make install
+make && sudo make install
 ```
 
 4. Enjoy
