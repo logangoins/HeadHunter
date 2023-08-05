@@ -1,5 +1,5 @@
 // Headhunter - Reverse shell handler and payload generator
-// Authors: Logan Goins and Lena
+// Author: Logan Goins
 // 
 //
 // I am not liable for any malicious or illegal action
@@ -7,8 +7,8 @@
 // TODO:
 // Implement command session command "exfil", which allows you to exfil files.
 // Comment payload which is now far more advanced
-// Add better error handling on payload, as well is implement persistance methods
-// Implement RSA 2048 asymmetric encryption 
+// Add better error handling on payload, as well as implement persistance methods
+
 
 #include "server.c"
 #include <stdlib.h>
