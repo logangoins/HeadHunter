@@ -195,6 +195,23 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 	return sockfd;
 }
 
+void connection_display(args *a) {
+    n = read(a.dest, buffer, MAXBUF);
+    write(STDOUT_FILENO, buffer, n);
+    while ((n = read(a.dest, buffer, MAXBUF)) > 0)
+    {
+
+        if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
+        {
+            printf("Error in function write()\n");
+        }
+    }
+
+    if (n == -1)
+    {
+        printf("Error in function read()\n");
+    }
+}
 
 void Server(char *address, char *port, int *type, int *family)
 {
@@ -223,7 +240,6 @@ void Server(char *address, char *port, int *type, int *family)
 	a.src = STDIN_FILENO;
 	a.dest = client_socket[0];
 
-
 	// creates thread that will run parallel with the rest of the code to handle connection operations
 	if (pthread_create(&printer, NULL, Writer, (void *)&a) != 0)
 	{
@@ -231,29 +247,13 @@ void Server(char *address, char *port, int *type, int *family)
 	}
 
 	// reads data from the victim socket, executes code is data is found
-
-	n = read(a.dest, buffer, MAXBUF);
-	write(STDOUT_FILENO, buffer, n);
-	while ((n = read(a.dest, buffer, MAXBUF)) > 0)
-	{
-
-		if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
-		{
-			printf("Error in function write()\n");
-		}
-	}
-
-	if (n == -1)
-	{
-		printf("Error in function read()\n");
-	}
+    connection_display(&a)
 
 	// sends a request to stop thread
 	pthread_cancel(printer);
 	pthread_join(printer, NULL);
 	close(master_socket);
 	close(a.dest);
-
 }
 
 
