@@ -73,8 +73,6 @@ void *Acceptor(void *arg){
 
 		if (FD_ISSET(master_socket, &readfds)) {
 
-
-
 			//wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
 			activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 
