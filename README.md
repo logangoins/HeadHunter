@@ -1,4 +1,4 @@
-<img src="https://socialify.git.ci/Lionskey/Headhunter/image?description=1&descriptionEditable=Custom%20command%20and%20control%20server%20%26%20payload%20generator%20written%20in%20C&font=Bitter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark">
+<img src="https://socialify.git.ci/Lionskey/Headhunter/image?description=1&descriptionEditable=Command%20and%20Control%20(C2)%20Server%20and%20Payload%20Generator&font=Bitter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark">
 
 # HeadHunter
 HeadHunter is a reverse shell handler for GNU Linux based operating systems. 
