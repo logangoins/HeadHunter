@@ -111,13 +111,5 @@ void Server(char *address, char *port, int *type, int *family) {
         }
     }
 
-    // sends a request to stop thread
-    pthread_cancel(socket_reader);
-    pthread_cancel(socket_writer);
-    pthread_join(socket_reader, NULL);
     close(master_socket);
-    close(a.dest);
-    printf("All processes killed. Exiting...\n");
-    sync();
-    fflush(NULL);
 }

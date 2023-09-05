@@ -2,8 +2,8 @@
 // Author: Logan Goins
 // 
 //
-// I am not liable for any malicious or illegal action
-// that any user commits using this software.
+// I am not liable for any malicious or illegal action using this software
+//
 // TODO:
 // Implement command session command "exfil", which allows you to exfil files.
 // Comment payload which is now far more advanced
@@ -90,7 +90,7 @@ void run_server(char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-  Reverse Shell Handler and Payload Generator
+  C2 Server and and Payload Generator
   Author: Logan Goins
 
 
