@@ -14,20 +14,20 @@ int server_control_session(){
     printf(PROMPT);
     fflush(NULL);
     while((n = read(a.src, buffer, MAXBUF)) > 0){
-        if (strcmp(buffer, "help\n") == 0) {
-            printf("Showing all help commands:\n");
+        if (strcmp(buffer, "help\n") == 0 || strcmp(buffer, "help\n\n") == 0) {
+            printf("\nCommands:\n");
             printf(">help                   |  List all available commands\n");
-            printf(">list connections       |  List active connections\n");
+            printf(">show connections       |  List active connections\n");
             printf(">use <connection id>    |  Switch session to specified connection by id\n");
             printf(">exit                   |  Close headhunter\n");
-            printf("***********************************************************************\n");
-        } else if (strcmp(buffer, "list connections\n") == 0) {
-            printf("Current connections:\nID  |  Address\n--------------\n");
+            printf("***********************************************************************\n\n");
+        } else if (strcmp(buffer, "show connections\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
+            printf("\nCurrent connections:\nID  |  Address\n--------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }  // Continue just in case there is a random NULL socket
                 printf("%3d |  %s\n", i + 1, get_socket_addr(client_socket[i]));
             }
-            printf("--------------\n");
+            printf("--------------------------\n\n");
         } else if (str_starts_with(buffer, "use") == 1) {
             selected_id = 0;
 
@@ -39,18 +39,16 @@ int server_control_session(){
             printf("Exiting server control session...\n");
             printf("Entering control session with id '%d'...\n", selected_id);
             if (selected_id >= MAX_CLIENTS || selected_id < 0) {
-                printf("Invalid id!\nBuffer received:\n");
-                printf("%s\n", buffer);
-                printf("END OF BUFFER\n");
+                printf("Invalid id!\n\n");
                 continue;
             }
             selected_id += 3;
 
             return selected_id;
-        } else if (strcmp(buffer, "exit\n") == 0){
+        } else if (strcmp(buffer, "exit\n") == 0 || strcmp(buffer, "exit\n\n") == 0){
             printf("Exiting server control session...\n");
             return -1;
-        } else if(strcmp(buffer, "\n") == 0){
+        } else if(strcmp(buffer, "\n") == 0 || strcmp(buffer, "\n\n") == 0){
         } else {
             printf("Unknown command. Enter 'help' for list of available commands.\n");
         }
@@ -171,7 +169,7 @@ void *Acceptor(){
                     // only if position is empty
                     if( client_socket[i] == 0 ){
                         client_socket[i] = new_socket;
-                        printf("Connection received with %s\n\n", get_socket_addr(new_socket));
+                        printf("\nConnection received with %s\n\n", get_socket_addr(new_socket));
 
                         break;
                     }
