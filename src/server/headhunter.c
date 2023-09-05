@@ -2,12 +2,12 @@
 // Author: Logan Goins
 // 
 //
-// I am not liable for any malicious or illegal action using this software
+// I am not liable for any damage caused by this software. This software is for educational purposes only. This software is under the discretion of the end user.
 //
 // TODO:
 // Implement command session command "exfil", which allows you to exfil files.
 // Comment payload which is now far more advanced
-// Add better error handling on payload, as well as implement persistance methods
+// Add better error handling on payload, as well as implement persistence methods
 
 
 #include "server.c"
