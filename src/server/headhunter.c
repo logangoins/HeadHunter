@@ -22,6 +22,7 @@ bool strcmp_alias(char* str1, char* str2_1, char* str2_2);
 void help();
 void run_server(char* port);
 int generate_payload(char* platform, char* outfile, char* port, char* lhost);
+int parse_payload_generation(int argc, char **argv);
 
 
 int main(int argc, char **argv){
@@ -43,31 +44,7 @@ int main(int argc, char **argv){
 			return 0;
 		}
 		else if(strcmp_alias(argv[i], "-g", "--generate")){
-			// check if the rest of the arguments for generating the payload are there
-			// the last argument should never be important if the user is using the software properly, so only check to argc - 1
-			char *platform = NULL, *outfile = NULL, *port = NULL, *lhost = NULL;
-			for(int j = i+1; j < argc-1; j++) {
-				// we only care about arguments where the next argument is a user inputted string
-				if(argv[j+1][0] == '-') continue;
-
-				if(strcmp_alias(argv[j], "-w", "--platform"))
-					platform = argv[j+1];
-				else if(strcmp_alias(argv[j], "-o", "--output"))
-					outfile = argv[j+1];
-				else if(strcmp_alias(argv[j], "-p", "--port"))
-					port = argv[j+1];
-				else if(strcmp_alias(argv[j], "-l", "--localhost"))
-					lhost = argv[j+1];
-			}
-
-			// if any of the payload variables were never set, the user didn't do things right
-			if(!platform || !outfile || !port || !lhost) {
-				printf("Specify all options required to generate the payload.\n");
-				return 1;
-			}
-
-			// generate the payload. the return value of generate_payload() is the exit code of the compile command.
-			return generate_payload(platform, outfile, port, lhost);
+            return parse_payload_generation(argc, argv);
 		}
 	}
 
@@ -162,4 +139,32 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
 		printf("An error was found while generating the payload!\n");
 
 	return exit;
+}
+
+
+int parse_payload_generation(int argc, char **argv){
+    // check if the rest of the arguments for generating the payload are there
+    // the last argument should never be important if the user is using the software properly, so only check to argc - 1
+    char *platform = NULL, *outfile = NULL, *port = NULL, *lhost = NULL;
+    for(int j = i+1; j < argc-1; j++) {
+        // we only care about arguments where the next argument is a user inputted string
+        if(argv[j+1][0] == '-') continue;
+
+        if(strcmp_alias(argv[j], "-w", "--platform"))
+            platform = argv[j+1];
+        else if(strcmp_alias(argv[j], "-o", "--output"))
+            outfile = argv[j+1];
+        else if(strcmp_alias(argv[j], "-p", "--port"))
+            port = argv[j+1];
+        else if(strcmp_alias(argv[j], "-l", "--localhost"))
+            lhost = argv[j+1];
+    }
+    // if any of the payload variables were never set, the user didn't do things right
+    if(!platform || !outfile || !port || !lhost) {
+        printf("Specify all options required to generate the payload.\n");
+        return 1;
+    }
+
+    // generate the payload. the return value of generate_payload() is the exit code of the compile command.
+    return generate_payload(platform, outfile, port, lhost);
 }
