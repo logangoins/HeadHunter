@@ -65,7 +65,7 @@ int main(void){
 			}
 
 			else{
-				char* invalid = "Invalid command session command, type \"help\" for a list of commands\n";		
+				char* invalid = "\nInvalid command session command, type \"help\" for a list of commands\n";
 				write(sockt, invalid, strlen(invalid));
 			}		
 		}
