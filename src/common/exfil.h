@@ -1,8 +1,7 @@
 #ifndef _SENDFILE_H_
 #define _SENDFILE_H_
 
-int sendfile(char* file, int sfd);
-
-int recvfile(char* file, int rfd);
+int sendfile(const char* filename, const int fd);
+int recvfile(const char* filename, const int fd);
 
 #endif
