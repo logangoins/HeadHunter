@@ -15,9 +15,10 @@ int sendfile(char* file, int sfd){
 	char* errbuff = "Error opening file...\n";  
 
 	FILE *fp = fopen(file, "rb");
-	if(fp == NULL{
-		write(sfd, errbuff, sizeof(errbuff); 
-	}    return 2;
+	if(fp == NULL) {
+		write(sfd, errbuff, strlen(errbuff));
+		return 2;
+	}    
 
 	while( (b = fread(sendbuffer, 1, sizeof(sendbuffer), fp))>0 ){
 		send(sfd, sendbuffer, b, 0);
@@ -26,7 +27,7 @@ int sendfile(char* file, int sfd){
 	fclose(fp);
 
 	return 0;
-	}
+}
 
 int recvfile(char* file, int rfd){
 	FILE* fp = fopen(file , "wb");
