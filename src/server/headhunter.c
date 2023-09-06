@@ -6,8 +6,9 @@
 //
 // TODO:
 // Implement command session command "exfil", which allows you to exfil files.
-// Comment payload which is now far more advanced
+// Implement server session command kill, which allows you to kill a connection to a victim machine.
 // Add better error handling on payload, as well as implement persistence methods
+// Implement AES256 encryption between payload and server
 
 
 #include "server.c"
@@ -75,8 +76,7 @@ void help() {
 
 void run_server(char* port) {
 	// start the server
-
-	printf(R"EOF(
+    printf(R"EOF(
 
 
  ██░ ██ ▓█████ ▄▄▄      ▓█████▄  ██░ ██  █    ██  ███▄    █ ▄▄▄█████▓▓█████  ██▀███  
@@ -90,12 +90,9 @@ void run_server(char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-  C2 Server and and Payload Generator
-  Author: Logan Goins
-
-
-
-  )EOF");
+C2 Server and and Payload Generator
+Author: Logan Goins
+)EOF");
 
 	int protocol = SOCK_STREAM;
 	int family = AF_INET;
