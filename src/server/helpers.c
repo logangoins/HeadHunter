@@ -43,13 +43,18 @@ int get_sockd_index(int sockd){
 }
 
 int extra_newline_eraser(char* buffer){
+
     for(int i = 0; i < MAXBUF - 1; i++){
+
+
         if(buffer[i] == '\n' && buffer[i+1] == '\n'){
             int e,j;
             e = 0;
             while(e<strlen(buffer)){
                 if(buffer[e] == '\n'){
+
                     for(j = e; j < strlen(buffer) - 1; j++)
+
                         buffer[j] = buffer[j+1];
                 } else e++;
             }
@@ -59,3 +64,4 @@ int extra_newline_eraser(char* buffer){
 
     return 0;
 }
+
