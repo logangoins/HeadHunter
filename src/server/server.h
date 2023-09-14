@@ -1,3 +1,6 @@
+#ifndef _SERVER_H_
+#define _SERVER_H_
+
 #define MAXBUF 65536
 #define BACKLOG 1
 #define MAX_CLIENTS 30
@@ -19,3 +22,5 @@ typedef struct args
 } args;
 
 args a;
+
+#endif

