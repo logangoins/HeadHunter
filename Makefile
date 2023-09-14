@@ -2,6 +2,9 @@ serverfiles := ${wildcard src/server/*}
 headhunter: ${serverfiles}
 	cc -Wall src/server/headhunter.c -o headhunter -lpthread
 
+clean:
+	rm headhunter
+
 install: headhunter
 	cp headhunter /usr/bin/
 	mkdir -p /usr/lib/headhunter

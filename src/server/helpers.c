@@ -2,6 +2,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+#include "server.h"
+
 extern struct sockaddr_in cli;
 extern socklen_t len;
 extern int client_socket[MAX_CLIENTS];
