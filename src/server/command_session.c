@@ -99,7 +99,7 @@ void *Socket_Writer()
     while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
     {
 
-        if (strcmp(buffer, "!exit\n") == 0 || strcmp(buffer, "!exit\n\n") == 0) { //Find a way
+        if (strcmp(newline_terminator(buffer), "!exit\n") == 0 || strcmp(newline_terminator(buffer), "!exit\n\n") == 0) { //Find a way
             printf("Exiting session...\n");
             a.kill = 1;
             return NULL;
