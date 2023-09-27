@@ -30,7 +30,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
     {
         sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 
-        if (sockfd == -1)
+        if (sockfd < 0)
         {
             perror("Error in socket()");
             continue;
@@ -40,14 +40,14 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
         {
             int sockopt = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
 
-            if (sockopt == -1)
+            if (sockopt < 0)
             {
                 printf("Error in function setsockopt\n");
             }
         }
 
         // binds socket
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
+        if (bind(sockfd, p->ai_addr, p->ai_addrlen) < 0)
         {
             close(sockfd);
             perror("Error in bind()");
@@ -64,7 +64,7 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
     }
 
     // starts listening for incoming connections
-    if (*type == SOCK_STREAM && listen(sockfd, BACKLOG) == -1)
+    if (*type == SOCK_STREAM && listen(sockfd, BACKLOG) < 0)
     {
         printf("Error in function listen\n");
     }
@@ -95,7 +95,7 @@ void Server(char *address, char *port, int *type, int *family) {
     while(1){
         action = server_control_session();
 
-        if (action == -1){break;}  // Exit cleanly
+        if (action < 0){break;}  // Exit cleanly
         a.dest = action;
         a.kill = 0;
 
