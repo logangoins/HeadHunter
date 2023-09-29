@@ -72,14 +72,14 @@ void *Socket_Reader(){
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
-        if (write(STDOUT_FILENO, buffer, n) == -1)  // writes data from victim fd to stdout
+        if (write(STDOUT_FILENO, buffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
         fflush(NULL);
         //printf("%d>", a.dest);
         fflush(NULL);
     }
 
-    if (n == -1)
+    if (n < 0)
         printf("Error in function read()\n");
 
     a.kill = 1;
@@ -109,7 +109,7 @@ void *Socket_Writer()
         }
     }
 
-    if (n == -1)
+    if (n < 0)
         printf("Error in function thread read()\n");
 
     a.kill = 1;
