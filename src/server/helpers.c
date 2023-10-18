@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
-
+#include <stdlib.h>
 #include "server.h"
 
 extern struct sockaddr_in cli;
@@ -54,3 +54,17 @@ char* newline_terminator(char* buffer){
 
     return buffer;
 }
+
+char* XOR(char* data, char* key, int datalen, int keylen) {
+
+    char* output = (char*)malloc(sizeof(char) * datalen);
+    
+    for (int i = 0; i < datalen; ++i){
+	output[i] = data[i] ^ key[i % keylen];
+    }
+
+    return output;    
+
+}
+
+
