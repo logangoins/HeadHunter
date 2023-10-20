@@ -31,6 +31,7 @@ int main(void)
 
 	char* xorhello = XOR("Hunter Agent 1.0\n", key, 17, keylen);
 	write(sock, xorhello, 17);
+	free(xorhello);
 
 	while (connection_established == 0)
 	{
@@ -43,6 +44,7 @@ int main(void)
 			{
 				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
 				write(sock, xorhelp, strlen(MSG_HELP));
+				free(xorhelp);
 			}
 
 			// TODO: Make proper shell agent command
@@ -77,6 +79,8 @@ int main(void)
 			{
 				char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
 				write(sock, xorexit, strlen(MSG_EXIT_CMD));
+				free(xorexit);
+				free(xorbuf);
 				exit(EXIT_SUCCESS);
 			}
 
@@ -85,6 +89,7 @@ int main(void)
 				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
 				write(sock, xorinvalid, strlen(MSG_INVALID));
 			}		
+			free(xorbuf);
 		}
 	}
 
