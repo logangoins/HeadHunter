@@ -64,9 +64,10 @@ int CreateServerSocket(char* address, char* port, int* type, int* family)
     }
 
     freeaddrinfo(servinfo);
-    printf("Entering server command session\n");
-    printf("Listener started... awaiting connection\nType \"help\" to see "
-           "command list\n\n");
+
+    printf("\n[+] Entering server command session\n");
+    printf("[+] Listener started on 0.0.0.0:%s - Awaiting connection...\nType \"help\" to see command list\n\n", port);
+
     return sockfd;
 }
 

