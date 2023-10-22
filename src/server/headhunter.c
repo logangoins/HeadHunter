@@ -25,19 +25,13 @@ char* key;
 int keylen;
 
 // function prototypes
-bool
-strcmp_alias(char* str1, char* str2_1, char* str2_2);
-void
-help();
-void
-run_server(char* port);
-int
-generate_payload(char* platform, char* outfile, char* port, char* lhost);
-int
-parse_payload_generation(int argc, char** argv);
+bool strcmp_alias(char* str1, char* str2_1, char* str2_2);
+void help();
+void run_server(char* port);
+int generate_payload(char* platform, char* outfile, char* port, char* lhost);
+int parse_payload_generation(int argc, char** argv);
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 
     // XOR key
@@ -70,16 +64,14 @@ main(int argc, char** argv)
     return 1;
 }
 
-bool
-strcmp_alias(char* str1, char* str2_1, char* str2_2)
+bool strcmp_alias(char* str1, char* str2_1, char* str2_2)
 {
     // compare str1 with str2_1 and str2_2. if str1 is equal to either, return
     // true. this function only exists to make the loop in main() look prettier
     return strcmp(str1, str2_1) == 0 || strcmp(str1, str2_2) == 0;
 }
 
-void
-help()
+void help()
 {
     // print the help dialog
 
@@ -105,8 +97,7 @@ help()
         "the payload will connect back to (address of attacker server)\n\n");
 }
 
-void
-run_server(char* port)
+void run_server(char* port)
 {
     // start the server
     printf(R"EOF(
@@ -132,8 +123,7 @@ Author: Logan Goins
     Server(NULL, port, &protocol, &family);
 }
 
-int
-generate_payload(char* platform, char* outfile, char* port, char* lhost)
+int generate_payload(char* platform, char* outfile, char* port, char* lhost)
 {
     // generate the payload. returns the exit code of the compile command run.
 
@@ -197,8 +187,7 @@ generate_payload(char* platform, char* outfile, char* port, char* lhost)
     return exit;
 }
 
-int
-parse_payload_generation(int argc, char** argv)
+int parse_payload_generation(int argc, char** argv)
 {
     // check if the rest of the arguments for generating the payload are there
     // the last argument should never be important if the user is using the

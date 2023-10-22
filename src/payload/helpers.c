@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char*
-XOR(char* data, char* key, int datalen, int keylen)
+char* XOR(char* data, char* key, int datalen, int keylen)
 {
     char* output = (char*)malloc(sizeof(char) * datalen);
 

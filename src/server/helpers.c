@@ -9,16 +9,14 @@ extern socklen_t len;
 extern int client_socket[MAX_CLIENTS];
 extern args a;
 
-char*
-get_socket_addr(int socket_descriptor)
+char* get_socket_addr(int socket_descriptor)
 {
     getpeername(socket_descriptor, (struct sockaddr*)&cli, &len);
 
     return inet_ntoa(cli.sin_addr);
 }
 
-int
-str_starts_with(char* a, char* b)
+int str_starts_with(char* a, char* b)
 {
     for (int i = 0; i < strlen(b); i++) {
         if (a[i] != b[i])
@@ -27,8 +25,7 @@ str_starts_with(char* a, char* b)
     return 1;
 }
 
-int
-have_connections()
+int have_connections()
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (client_socket[i] != 0) {
@@ -38,8 +35,7 @@ have_connections()
     return 0;
 }
 
-int
-get_sockd_index(int sockd)
+int get_sockd_index(int sockd)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
         // printf("{%d}%d\n", i, client_socket[i]);
@@ -50,8 +46,7 @@ get_sockd_index(int sockd)
     return -1;
 }
 
-char*
-newline_terminator(char* buffer)
+char* newline_terminator(char* buffer)
 {
     for (int i = 0; i < MAXBUF; i++) {
         if (buffer[i] == '\n') {
@@ -63,8 +58,7 @@ newline_terminator(char* buffer)
     return buffer;
 }
 
-char*
-XOR(char* data, char* key, int datalen, int keylen)
+char* XOR(char* data, char* key, int datalen, int keylen)
 {
     char* output = (char*)malloc(sizeof(char) * datalen);
 

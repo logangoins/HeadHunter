@@ -9,8 +9,7 @@
 
 #define MAXBUF 65536
 
-int
-main(void)
+int main(void)
 {
     int connection_established;
     char* ip = LHOST;

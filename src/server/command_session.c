@@ -9,8 +9,7 @@
 extern char* key;
 extern int keylen;
 
-int
-server_control_session()
+int server_control_session()
 {
     int n;
     char buffer[MAXBUF];
@@ -80,8 +79,7 @@ server_control_session()
     return -1;
 }
 
-void*
-Socket_Reader()
+void* Socket_Reader()
 {
     // Intercept incoming data from the current victim socket
     char buffer[MAXBUF];
@@ -112,8 +110,7 @@ Socket_Reader()
 // *****************************************************
 // *****************************************************
 
-void*
-Socket_Writer()
+void* Socket_Writer()
 {
     // Reads data from stdin and writes to socket
     int n;
@@ -156,8 +153,7 @@ Socket_Writer()
 
 // Declaration of a thread routine that will be called by pthread for reading
 // from stdin on server and write to the victim file descriptor
-void*
-Acceptor()
+void* Acceptor()
 {
     FD_SET(master_socket, &readfds); // assigned master socket to the set
     for (i = 0; i < max_clients;

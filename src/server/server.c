@@ -10,8 +10,7 @@
 #include "command_session.c"
 #include "helpers.c"
 
-int
-CreateServerSocket(char* address, char* port, int* type, int* family)
+int CreateServerSocket(char* address, char* port, int* type, int* family)
 {
     int sockfd, gai_error;
     struct addrinfo hints, *servinfo, *p;
@@ -71,8 +70,7 @@ CreateServerSocket(char* address, char* port, int* type, int* family)
     return sockfd;
 }
 
-void
-Server(char* address, char* port, int* type, int* family)
+void Server(char* address, char* port, int* type, int* family)
 {
     pthread_t socket_reader;
     pthread_t socket_writer;

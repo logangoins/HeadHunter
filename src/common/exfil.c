@@ -15,8 +15,7 @@
 #define SEND_BUFSIZE 100
 #define RECV_BUFSIZE 1024
 
-int
-sendfile(const char* filename, const int fd)
+int sendfile(const char* filename, const int fd)
 {
     char* sendbuffer[SEND_BUFSIZE];
     int byte;
@@ -36,8 +35,7 @@ sendfile(const char* filename, const int fd)
     return EXIT_SUCCESS;
 }
 
-int
-recvfile(const char* filename, const int fd)
+int recvfile(const char* filename, const int fd)
 {
     char buf[RECV_BUFSIZE + 1];
     int byte;
