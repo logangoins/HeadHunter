@@ -75,8 +75,7 @@ main(void)
             }
 */
             else if (strncmp(buf, "exit\n", 5) == 0) {
-                char* xorexit =
-                    XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
+                char* xorexit = XOR(MSG_EXIT_CMD, key, strlen(MSG_EXIT_CMD), keylen);
                 write(sock, xorexit, strlen(MSG_EXIT_CMD));
                 free(xorexit);
                 free(xorbuf);
@@ -84,9 +83,9 @@ main(void)
             }
 
             else {
-                char* xorinvalid =
-                    XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
+                char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
                 write(sock, xorinvalid, strlen(MSG_INVALID));
+                free(xorinvalid);
             }
             free(xorbuf);
         }
