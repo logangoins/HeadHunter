@@ -1,54 +1,50 @@
+#include "server.h"
 #include <netdb.h>
+#include <netinet/in.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <netinet/in.h>
-#include "server.h"
 
-#include "helpers.c"
 #include "command_session.c"
+#include "helpers.c"
 
-int CreateServerSocket(char *address, char *port, int *type, int *family)
+int CreateServerSocket(char* address, char* port, int* type, int* family)
 {
     int sockfd, gai_error;
     struct addrinfo hints, *servinfo, *p;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = *family;   // passes parameters called into a struct
+    hints.ai_family = *family; // passes parameters called into a struct
     hints.ai_socktype = *type;
     hints.ai_flags = AI_PASSIVE;
 
-    if ((gai_error = getaddrinfo(address, port, &hints, &servinfo)) != 0)
-    {
-        fprintf(stderr, "Error in getaddrinfo(): %s\n", gai_strerror(gai_error));
+    if ((gai_error = getaddrinfo(address, port, &hints, &servinfo)) != 0) {
+        fprintf(
+            stderr, "Error in getaddrinfo(): %s\n", gai_strerror(gai_error));
         exit(0);
     }
 
-    for (p = servinfo; p != NULL; p = p->ai_next)
-    {
+    for (p = servinfo; p != NULL; p = p->ai_next) {
         sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 
-        if (sockfd < 0)
-        {
+        if (sockfd < 0) {
             perror("Error in socket()");
             continue;
         }
 
-        if (*type == SOCK_STREAM)
-        {
-            int sockopt = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+        if (*type == SOCK_STREAM) {
+            int sockopt = setsockopt(
+                sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int));
 
-            if (sockopt < 0)
-            {
+            if (sockopt < 0) {
                 printf("Error in function setsockopt\n");
             }
         }
 
         // binds socket
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) < 0)
-        {
+        if (bind(sockfd, p->ai_addr, p->ai_addrlen) < 0) {
             close(sockfd);
             perror("Error in bind()");
             continue;
@@ -57,31 +53,33 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
         break;
     }
 
-    if (p == NULL)
-    {
+    if (p == NULL) {
         printf("Error could not bind\n");
         exit(0);
     }
 
     // starts listening for incoming connections
-    if (*type == SOCK_STREAM && listen(sockfd, BACKLOG) < 0)
-    {
+    if (*type == SOCK_STREAM && listen(sockfd, BACKLOG) < 0) {
         printf("Error in function listen\n");
     }
 
     freeaddrinfo(servinfo);
+
     printf("\n[+] Entering server command session\n");
     printf("[+] Listener started on 0.0.0.0:%s - Awaiting connection...\nType \"help\" to see command list\n\n", port);
+
     return sockfd;
 }
 
-void Server(char *address, char *port, int *type, int *family) {
+void Server(char* address, char* port, int* type, int* family)
+{
     pthread_t socket_reader;
     pthread_t socket_writer;
     pthread_t acceptor;
     int action;
 
-    // calls function to create server socket then returns server file descriptor
+    // calls function to create server socket then returns server file
+    // descriptor
     master_socket = CreateServerSocket(address, port, type, family);
 
     // create an acceptor child process to accept incoming connections
@@ -92,10 +90,12 @@ void Server(char *address, char *port, int *type, int *family) {
     a.src = STDIN_FILENO;
     a.dest = 0;
 
-    while(1){
+    while (1) {
         action = server_control_session();
 
-        if (action < 0){break;}  // Exit cleanly
+        if (action < 0) {
+            break;
+        } // Exit cleanly
         a.dest = action;
         a.kill = 0;
 
@@ -106,7 +106,7 @@ void Server(char *address, char *port, int *type, int *family) {
 
         // Kill socket reader/writer threads and WAIT for them to close
         pthread_join(socket_writer, NULL);
-        if (a.kill == 1){
+        if (a.kill == 1) {
             pthread_cancel(socket_reader);
             pthread_cancel(socket_writer);
         }
