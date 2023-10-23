@@ -1,4 +1,4 @@
-<img src="https://socialify.git.ci/Lionskey/HeadHunter/image?description=1&font=Source%20Code%20Pro&logo=https%3A%2F%2Fi.redd.it%2F6isihfajc73a1.png&name=1&owner=1&pattern=Solid&theme=Dark" alt="HeadHunter" width="640" height="320" />
+<img src="https://socialify.git.ci/Lionskey/HeadHunter/image?description=1&font=Source%20Code%20Pro&logo=https%3A%2F%2Fi.redd.it%2F6isihfajc73a1.png&name=1&owner=1&pattern=Solid&theme=Dark" alt="HeadHunter" align="center" width="640" height="320" />
 
 # HeadHunter
 HeadHunter is a C2 framework with XOR encrypted communications along with a bundled agent generator. 
