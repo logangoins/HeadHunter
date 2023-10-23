@@ -50,8 +50,6 @@ char* newline_terminator(char* buffer){
 	}
     }
 
-
-
     return buffer;
 }
 
@@ -67,4 +65,8 @@ char* XOR(char* data, char* key, int datalen, int keylen) {
 
 }
 
-
+void int_handler(int status) {
+	printf("\n");
+	printf(PROMPT);
+	fflush(NULL);
+}

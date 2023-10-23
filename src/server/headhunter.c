@@ -16,6 +16,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 // XOR key variable declaration
 char* key;
@@ -33,6 +35,14 @@ int main(int argc, char **argv){
 	// XOR key 
 	key = "NCMzvxra3Lr8T5gPfPa68UYnQre0Hvgg"; // Insert your own random XOR key here
 	keylen = strlen(key);
+
+	// Handle sigints
+	signal(SIGINT, SIG_IGN);
+        wait(NULL);
+        if(signal(SIGINT, int_handler) == SIG_ERR){
+		printf("failed to register interrupts with kernel\n");
+    	}
+
 
 	// loop through argv and search for the command being entered
 	// the first of either -h/--help, -l/--listen, or -g/--generate will be executed
