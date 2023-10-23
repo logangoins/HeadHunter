@@ -22,6 +22,7 @@ int server_control_session(){
             printf("> help                   |  List all available commands\n");
             printf("> show sessions          |  List active connections\n");
             printf("> use <session id>       |  Switch session to specified connection by id\n");
+	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
         } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
             printf("\nID          Address\n--------------------------\n");
@@ -47,7 +48,33 @@ int server_control_session(){
                 selected_id += 3;
                 return selected_id;
             }
-        } else if (strcmp(buffer, "exit\n") == 0 || strcmp(buffer, "exit\n\n") == 0){
+        } else if (str_starts_with(buffer, "kill") == 1){
+		
+		selected_id = 0;
+
+		for(int c = 5; c < strlen(buffer); c++){
+			if (isdigit(buffer[c])){
+				selected_id += ((int) buffer[c] - 48) * (strlen(buffer) - 6);
+			}
+		}
+
+		if (selected_id > victim_count || selected_id < 0){
+			printf("Invalid id!\n\n");
+		} else{
+			printf("[+] Killing agent control session with session ID: %d...\n", selected_id);
+			selected_id += 3;
+			victim_count--;
+			for(int i = 0; i < max_clients; i++){
+				if(client_socket[i] == selected_id){
+					client_socket[i] = 0;
+				}
+			}
+			close(selected_id);
+			printf("[+] Control session: %d successfully killed.\n", selected_id -= 3);
+		}
+
+
+	} else if (strcmp(buffer, "exit\n") == 0 || strcmp(buffer, "exit\n\n") == 0){
             printf("Exiting server control session...\n");
             return -1;
         } else if(strcmp(buffer, "\n") == 0 || strcmp(buffer, "\n\n") == 0){
