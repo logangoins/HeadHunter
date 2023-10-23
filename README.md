@@ -1,10 +1,9 @@
-<img src="https://socialify.git.ci/Lionskey/Headhunter/image?description=1&descriptionEditable=Command%20and%20Control%20(C2)%20Server%20and%20Payload%20Generator&font=Bitter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark">
+<img src="https://socialify.git.ci/Lionskey/HeadHunter/image?description=1&font=Source%20Code%20Pro&logo=https%3A%2F%2Fi.redd.it%2F6isihfajc73a1.png&name=1&owner=1&pattern=Solid&theme=Dark" alt="HeadHunter" width="640" height="320" />
 
 # HeadHunter
-HeadHunter is a command & control (C2) server and payload generator for GNU Linux based operating systems. 
-HeadHunter has functionality to generate binary payloads for GNU Linux and Microsoft Windows 64 and 32 bit operating systems.
-You can also use any other reverse shell payload (netcat, powershell, etc.) while keeping full functionality with HeadHunter.
-
+HeadHunter is a C2 framework with XOR encrypted communications along with a bundled agent generator. 
+HeadHunter has functionality to generate binary agents for GNU/Linux and Windows 32- and 64-bit operating systems. 
+ 
 ## Notes
 
 I am not liable for any damage caused by this software. This software is for educational purposes only. This software is under the discretion of the end user.
@@ -35,5 +34,5 @@ make && sudo make install
 
 4. Enjoy
 ``` 
-headhunter --help
+headhunter
 ``` 
