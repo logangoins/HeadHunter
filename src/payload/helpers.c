@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <arpa/inet.h>
+//#include <arpa/inet.h>
 #include <stdlib.h>
 
 char* XOR(char* data, char* key, int datalen, int keylen) {
@@ -29,3 +29,15 @@ char *split(char *str, const char *delim)
     *p = '\0';                      // terminate string after head
     return p + strlen(delim);       // return tail substring
 }
+
+char* newline_terminator(char* buffer){
+    for(int i = 0; i < strlen(buffer); i++){
+        if(buffer[i] == '\n'){
+            buffer[i+1] = '\0';
+            break;
+        }
+    }
+
+    return buffer;
+}
+
