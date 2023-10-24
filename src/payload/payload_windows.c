@@ -83,7 +83,7 @@ int main(void) {
                         char command[12000];
                         while (fgets(path, sizeof(path), fp) != NULL) {
                        		printf("Line: %s\n", path);
-				strcat(command, path);
+				strncat(command, path, strlen(path));
                         }
                         char* xordata = XOR(command, key, (int)strlen(command), keylen);
 			
