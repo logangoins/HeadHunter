@@ -88,6 +88,7 @@ int main(void) {
                         char* xordata = XOR(command, key, (int)strlen(command), keylen);
 			
                         send(sock, xordata, (int)strlen(command), 0);
+			free(xordata);
 			memset(command, '\0', strlen(command));
 
 		}
