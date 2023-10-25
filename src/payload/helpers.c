@@ -15,9 +15,9 @@ char* XOR(char* data, char* key, int datalen, int keylen) {
 int str_starts_with(char *a, char*b){
     for(int i = 0; i < strlen(b); i++){
         if (a[i] != b[i])
-            return 0;
+            return 1;
     }
-    return 1;
+    return 0;
 }
 
 char *split(char *str, const char *delim)

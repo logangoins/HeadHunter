@@ -18,9 +18,9 @@ char *get_socket_addr(int socket_descriptor){
 int str_starts_with(char *a, char*b){
     for(int i = 0; i < strlen(b); i++){
         if (a[i] != b[i])
-            return 0;
+            return 1;
     }
-    return 1;
+    return 0;
 }
 
 int have_connections(){
