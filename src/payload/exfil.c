@@ -28,7 +28,7 @@ int sendfile(FILE* fp, int fd, char* key)
 	char* xoreof = XOR(eof, key, strlen(eof), strlen(key));
 	send(fd, xoreof, strlen(eof), 0);
 	free(xoreof);
-	fclose(fp);
+	//fclose(fp);
 	return 0;
 }
 
@@ -52,7 +52,7 @@ int recvfile(char* filename, int fd, char* key)
 		fprintf(fp, "%s", xorbuffer);
 		bzero(buffer, SIZE);
 		free(xorbuffer);
-		fclose(fp);
+		//fclose(fp);
   	}
 
   return 0;
