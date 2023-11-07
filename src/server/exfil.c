@@ -47,13 +47,15 @@ int recvfile(char* filename, int fd, char* key)
 		char* xorbuffer = XOR(buffer, key, n, strlen(key));
 		if(strcmp(xorbuffer, "--HEADHUNTER EOF--") == 0){
 			printf("[+] File successfully written to \"out.hunter\"\n");
+			fclose(fp);
 			return 0;
 		}
 		fprintf(fp, "%s", xorbuffer);
 		bzero(buffer, SIZE);
 		free(xorbuffer);
 		//fclose(fp);
-  	}
+  		}
+		
 
   return 0;
 }
