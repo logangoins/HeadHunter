@@ -19,6 +19,7 @@ typedef struct args
     int src;
     int dest;
     int kill;
+    int shell;
 } args;
 
 args a;

