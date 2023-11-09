@@ -24,6 +24,7 @@ int sendfile(FILE* fp, int fd, char* key)
         while(fgets(data, SIZE, fp) != NULL) {
                 char* xordata = XOR(data, key, SIZE, strlen(key));
                 if (send(fd, xordata, sizeof(data), 0) == -1) {
+			free(xordata);
                         exit(1);
                 }
                 free(xordata);
