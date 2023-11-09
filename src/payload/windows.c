@@ -35,30 +35,6 @@ int sendfile(FILE* fp, int fd, char* key)
         return 0;
 }
 
-int recvfile(char* filename, int fd, char* key)
-{
-        int n;
-        FILE *fp;
-        char buffer[SIZE];
-        fp = fopen(filename, "w");
-        while(1){
-                n = recv(fd, buffer, SIZE, 0);
-                if (n <= 0){
-                        break;
-                        return 0;
-                }
-                char* xorbuffer = XOR(buffer, key, n, strlen(key));
-                if(strcmp(xorbuffer, "--HEADHUNTER EOF--") == 0){
-                        printf("[+] File successfully written to \"out.hunter\"\n");
-                        return 0;
-                }
-                fprintf(fp, "%s", xorbuffer);
-                free(xorbuffer);
-        }
-
-  return 0;
-}
-
 int main(void) {
 
 	WSADATA wsaData;
