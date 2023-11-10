@@ -1,12 +1,12 @@
 <img src="https://socialify.git.ci/Lionskey/HeadHunter/image?description=1&font=Source%20Code%20Pro&logo=https%3A%2F%2Fi.redd.it%2F6isihfajc73a1.png&name=1&owner=1&pattern=Solid&theme=Dark">
 
 # HeadHunter
-HeadHunter is a C2 framework with XOR encrypted communications along with a bundled agent generator. 
+HeadHunter is an adversary emulation framework and command & control (C2) server with XOR encrypted communications along with a bundled agent generator with cross compilation capabilities. 
 HeadHunter has functionality to generate binary agents for GNU/Linux and Windows 32- and 64-bit operating systems. 
  
 ## Notes
 
-I am not liable for any damage caused by this software. This software is for educational purposes only. This software is under the discretion of the end user.
+I am not liable for any damage caused by this software. This software is under the discretion of the end user.
 
 ## Dependencies
 mingw-w64 (For cross compilation to Windows)

