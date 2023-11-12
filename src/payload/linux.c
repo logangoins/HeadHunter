@@ -34,7 +34,7 @@ int sendfile(FILE* fp, int fd, char* key)
         
         while(fgets(data, SIZE, fp) != NULL) {
                 char* xordata = XOR(data, key, SIZE, strlen(key));
-                if (send(fd, xordata, sizeof(data), 0) == -1) {
+                if (send(fd, xordata, SIZE, 0) == -1) {
                         exit(1);
                 }
                 bzero(data, SIZE);
