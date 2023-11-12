@@ -34,5 +34,5 @@ make && sudo make install
 
 4. Enjoy
 ``` 
-headhunter
+headhunter --help
 ``` 
