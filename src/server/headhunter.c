@@ -107,7 +107,7 @@ void run_server(char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-C2 Server and and Payload Generator
+Command and Control (C2) Framework and Agent Generator
 Author: Logan Goins
 )EOF");
 
