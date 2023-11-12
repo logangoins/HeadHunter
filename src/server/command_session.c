@@ -49,7 +49,7 @@ int server_control_session(){
 	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
         } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
-            printf("\nID          Address          Status \n-------------------------------------------------\n");
+            printf("\nID          Address                  Status \n-------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }	// Continue just in case there is a random NULL socket
 		if(client_status[i] == 1){status = "Active";}
@@ -58,7 +58,7 @@ int server_control_session(){
 		gettimeofday(&current, NULL);
 		time_t diff_sec = current.tv_sec - last_check[i].tv_sec;
 		if(diff_sec > 600){status = "Inactive";}
-                printf("%-12d%s        %s %ld seconds ago\n", i + 1, get_socket_addr(client_socket[i]), status, diff_sec);
+                printf("%-12d%-25s%s %ld seconds ago\n", i + 1, get_socket_addr(client_socket[i]), status, diff_sec);
             }
 	    printf("\n");
         } else if (str_starts_with(buffer, "use") == 0) {
