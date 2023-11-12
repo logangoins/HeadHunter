@@ -83,12 +83,12 @@ void help() {
 	printf("\nCommands\n--------------------------------------------------------\n");
 	printf("-h, --help                                             displays this help menu\n");
 	printf("-l, --listen <port>                                    starts a listening HeadHunter server on a specified port\n");
-	printf("-g, --generate <Payload Generation Options>            generates a reverse shell payload to connect back to a recruiter session\n\n");
+	printf("-g, --generate <Payload Generation Options>            generates a Hunter agent to initiate a callback\n\n");
 	printf("\nPayload Generation Options\n--------------------------------------------------------\n");
-	printf("-p, --port <port>                                      port for the reverse shell to connect back on\n");
-	printf("-o, --output <outputfile>                              file to output payload to\n");
-	printf("-w, --platform <platform>                              file payload platform specific (linux, win32, or win64)\n");
-	printf("-l, --localhost <address>                              address that the payload will connect back to (address of attacker server)\n\n");
+	printf("-p, --port <port>                                      Hunter agent callback port\n");
+	printf("-o, --output <outputfile>                              file to output agent to\n");
+	printf("-w, --platform <platform>                              Hunter agent platform format (win64, win32, linux)\n");
+	printf("-l, --localhost <address>                              Hunter agent callback address\n\n");
 }
 
 void run_server(char* port) {
@@ -107,7 +107,7 @@ void run_server(char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-Command and Control (C2) Framework and Agent Generator
+Command and Control (C2) Framework and Agent Generator v1.0
 Author: Logan Goins
 )EOF");
 

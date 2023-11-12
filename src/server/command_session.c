@@ -49,7 +49,7 @@ int server_control_session(){
 	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
         } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
-            printf("\nID          Address                  Status \n-------------------------------------------------\n");
+            printf("\nID          Address                  Status \n---------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }	// Continue just in case there is a random NULL socket
 		if(client_status[i] == 1){status = "Active";}
