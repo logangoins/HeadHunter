@@ -31,7 +31,7 @@ DWORD WINAPI Callback(LPVOID lpParam) {
 			Sleep(100);
 		}
 	}
-	Sleep(10000);
+	Sleep(300000);
     }
 
     return 0;
