@@ -48,7 +48,7 @@ int server_control_session(){
             printf("> use <session id>       |  Switch session to specified connection by id\n");
 	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
-        } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
+        } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "show connections\n") == 0 || strcmp(buffer, "show\n") == 0 || strcmp(buffer, "show \n") == 0) {
             printf("\nID          Address                  Status \n---------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
                 if (client_socket[i] == 0){ continue; }	// Continue just in case there is a random NULL socket
@@ -124,6 +124,8 @@ int server_control_session(){
         } else if(strcmp(buffer, "\n") == 0 || strcmp(buffer, "\n\n") == 0){
         } else {
             printf("Unknown command. Enter 'help' for list of available commands.\n");
+	    printf("Executing unkown command:\n");
+	    system(buffer);
         }
         printf(PROMPT);
         fflush(NULL);
