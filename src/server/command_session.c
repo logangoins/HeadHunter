@@ -243,9 +243,9 @@ void *Socket_Writer()
 
 	else {
 	
-	    if(str_starts_with(buffer, "shell") == 0){
-		printf("\n\e[1;32m[+]\e[0m Tasking agent with command execution\n\n");
-	    }
+	    
+	    printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
+	    
 
 	    char* xorbuffer = XOR(buffer, key, n, keylen);
 

