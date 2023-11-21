@@ -215,6 +215,16 @@ void *Socket_Writer()
 	    }
             return NULL;
         } 
+	else if(strcmp(newline_terminator(buffer), "\n") == 0){
+		printf("beacon> ");
+		fflush(NULL);
+	}
+	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
+		printf("\n\t  Hunter Agent v1.0 Commands\n-------------------------------------------\nshell <command> - task the agent to run a command\nhelp - displays this menu\nbg - backgrounds the agent command session\nexit - tasks the agent to exit\n\n");
+
+		printf("beacon> ");
+		fflush(NULL);
+	}
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
 	    printf("\e[1;32m[+]\e[0m Tasking agent with exit\n");	

