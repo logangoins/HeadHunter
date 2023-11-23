@@ -112,7 +112,7 @@ int main(void) {
 
 				//free(xornewline);
 				free(xordata);
-				//memset(command, '\0', strlen(command));
+				memset(command, '\0', strlen(command));
 
 			}
 			
