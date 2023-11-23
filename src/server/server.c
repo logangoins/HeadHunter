@@ -94,8 +94,11 @@ void Server(char *address, char *port, int *type, int *family) {
 
     while(1){
         action = server_control_session();
+	
+	if(action == -1){
+		exit(0);
+	}
 
-        if (action < 0){break;}  // Exit cleanly
         a.dest = action;
         a.kill = 0;
 

