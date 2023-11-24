@@ -22,6 +22,9 @@ typedef struct args
     int src;
     int dest;
     int kill;
+    char* beaconbuf;
+    int beaconbufsize; 
+
 } args;
 
 args a;
