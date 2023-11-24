@@ -268,12 +268,18 @@ void *Socket_Writer()
 	}
 
 	else {
-	
+
+	    if(str_starts_with(buffer, "shell") == 0){ 	
 	    
-	    printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
-	    a.beaconbufsize = n;
-	    a.beaconbuf = buffer;
-          
+	    	printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
+	   	a.beaconbufsize = n;
+	   	a.beaconbuf = buffer;
+            }
+	    else{
+		printf("Invalid command, type \"help\" to list commands\n");
+		printf("beacon> ");
+		fflush(NULL);
+	    }
 	    //free(xorbuffer);
         }
     }
