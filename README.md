@@ -17,6 +17,8 @@ gcc
 
 make
 
+objdump (For shellcode generation)
+
 ## Installation 
 
 1. Clone the repository

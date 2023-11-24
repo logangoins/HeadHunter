@@ -152,8 +152,10 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost, cha
 
 			snprintf(cmd, CMD_SIZE, "objdump -d ./%s | grep \'[0-9a-f]:\' | grep -v \'file\' | cut -f2 -d: | cut -f1-6 -d\' \' | tr -s \' \' | tr \'\\t\' \' \' | sed \'s/ $//g\' | sed \'s/ /\\\\x/g\' | paste -d \'\' -s | sed \'s/^/\"/\' | sed \'s/$/\"/g\' > shellcode.bin", outfile);
 			int shellexit = system(cmd);
-			if(shellexit == 0)
+			if(shellexit == 0){
 				printf("Successfully generated shellcode\n");
+				remove(outfile);
+			}
 			else
 				printf("An error was found when generating shellcode\n");
 		}
