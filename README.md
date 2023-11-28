@@ -1,4 +1,4 @@
-<img src="https://socialify.git.ci/Lionskey/HeadHunter/image?description=1&font=Source%20Code%20Pro&logo=https%3A%2F%2Fi.redd.it%2F6isihfajc73a1.png&name=1&owner=1&pattern=Solid&theme=Dark">
+![2023-11-28 11_38_16-Logan-Goins docx - Word](https://github.com/Lionskey/HeadHunter/assets/55106700/3268f601-c941-4274-bc62-a29f67e51285)
 
 # HeadHunter
 HeadHunter is an adversary emulation framework and command & control (C2) server with encrypted communications along with a bundled agent generator with cross compilation capabilities. 
