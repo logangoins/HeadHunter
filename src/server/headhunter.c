@@ -84,7 +84,7 @@ void help() {
 	printf("-p, --port <port>                                      Hunter agent callback port\n");
 	printf("-o, --output <outputfile>                              file to output agent to\n");
 	printf("-w, --platform <platform>                              Hunter agent target platform (win64, win32, linux)\n");
-	printf("-f, --format <format>				       Hunter agent output format (bin, shellcode)");
+	printf("-f, --format <format>				       Hunter agent output format (bin, shellcode)\n");
 	printf("-l, --localhost <address>                              Hunter agent callback address\n\n");
 }
 
