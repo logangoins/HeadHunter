@@ -22,7 +22,7 @@ int keylen;
 // function prototypes
 bool strcmp_alias(char* str1, char* str2_1, char* str2_2);
 void help();
-void run_server(char* port);
+void run_server(char* address, char* port);
 int generate_payload(char* platform, char* outfile, char* port, char* lhost, char* format);
 int parse_payload_generation(int argc, char **argv);
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv){
 				printf("Please specify a port for the server to listen on.\n");
 				return 1;
 			}
-			run_server(argv[i+1]);
+			run_server(argv[i+1], argv[i+2]);
 			return 0;
 		}
 		else if(strcmp_alias(argv[i], "-g", "--generate")){
@@ -78,7 +78,7 @@ void help() {
 
 	printf("\nCommands\n--------------------------------------------------------\n");
 	printf("-h, --help                                             displays this help menu\n");
-	printf("-l, --listen <port>                                    starts a listening HeadHunter server on a specified port\n");
+	printf("-l, --listen <address> <port>                                    starts a listening HeadHunter server on a specified address and port\n");
 	printf("-g, --generate <Payload Generation Options>            generates a Hunter agent to initiate a callback\n\n");
 	printf("\nPayload Generation Options\n--------------------------------------------------------\n");
 	printf("-p, --port <port>                                      Hunter agent callback port\n");
@@ -88,7 +88,7 @@ void help() {
 	printf("-l, --localhost <address>                              Hunter agent callback address\n\n");
 }
 
-void run_server(char* port) {
+void run_server(char* address, char* port) {
 	// start the server
     printf(R"EOF(
 
@@ -110,7 +110,7 @@ Author: Logan Goins
 
 	int protocol = SOCK_STREAM;
 	int family = AF_INET;
-	Server(NULL, port, &protocol, &family);
+	Server(address, port, &protocol, &family);
 }
 
 int generate_payload(char* platform, char* outfile, char* port, char* lhost, char* format) { 
