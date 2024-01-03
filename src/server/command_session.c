@@ -45,12 +45,14 @@ int server_control_session(){
 
         if (strcmp(buffer, "help\n") == 0 || strcmp(buffer, "help\n\n") == 0) {
             printf("\nHeadHunter Control Server Commands:\n");
-	    printf("==========================================\n");
+
+	          printf("==========================================\n");
             printf("help                     List all available commands\n");
             printf("show sessions            List active connections\n");
             printf("use <session id>         Switch session to specified connection by id\n");
-	    printf("kill <session id>        Task agent to die and close connection by id\n");
+	          printf("kill <session id>        Task agent to die and close connection by id\n");
             printf("exit                     Close headhunter\n\n");
+
         } else if (strcmp(newline_terminator(buffer), "show sessions\n") == 0 || strcmp(newline_terminator(buffer), "show connections\n") == 0 || strcmp(newline_terminator(buffer), "show\n") == 0 || strcmp(newline_terminator(buffer), "show \n") == 0) {
             printf("\nID          Address                  Status \n--------------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){

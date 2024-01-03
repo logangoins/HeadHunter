@@ -1,7 +1,8 @@
-![2023-11-28 11_38_16-Logan-Goins docx - Word](https://github.com/Lionskey/HeadHunter/assets/55106700/3268f601-c941-4274-bc62-a29f67e51285)
+
+![headhunter](https://github.com/Lionskey/HeadHunter/assets/55106700/51dd0e74-ea55-4b2e-9caf-bec3dd8dcd0c)
 
 # HeadHunter
-HeadHunter is an adversary emulation framework and command & control (C2) server with encrypted communications along with a bundled agent generator with cross compilation capabilities. 
+HeadHunter is an adversary emulation framework and command & control (C2) server with encrypted communications along with custom agents and a server bundled agent generator with cross compilation capabilities.
 HeadHunter has functionality to generate binary and shellcode agents for GNU/Linux and Windows 32- and 64-bit operating systems. 
 
 A Hunter agent will call back to the HeadHunter command and control infrastructure, requesting agent commands from the operator until provided. If no commands are provided, the agent will sleep and continuously beacon until the agent is provided with instructions.   
