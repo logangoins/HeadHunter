@@ -78,7 +78,7 @@ void help() {
 
 	printf("\nCommands\n--------------------------------------------------------\n");
 	printf("-h, --help                                             displays this help menu\n");
-	printf("-l, --listen <address> <port>                                    starts a listening HeadHunter server on a specified address and port\n");
+	printf("-l, --listen <address> <port>                          starts a listening HeadHunter server on a specified address and port\n");
 	printf("-g, --generate <Payload Generation Options>            generates a Hunter agent to initiate a callback\n\n");
 	printf("\nPayload Generation Options\n--------------------------------------------------------\n");
 	printf("-p, --port <port>                                      Hunter agent callback port\n");
