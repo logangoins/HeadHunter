@@ -5,7 +5,7 @@
 #define MAXBUF 65536
 #define BACKLOG 1
 #define MAX_CLIENTS 30
-#define PROMPT "headhunter/> "
+#define PROMPT "HeadHunter/> "
 
 fd_set readfds;
 int master_socket, new_socket, max_clients = MAX_CLIENTS, client_socket[MAX_CLIENTS], client_status[MAX_CLIENTS], activity, i, sd, victim_count;

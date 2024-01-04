@@ -70,8 +70,8 @@ int CreateServerSocket(char *address, char *port, int *type, int *family)
     }
 
     freeaddrinfo(servinfo);
-    printf("\n\e[1;32m[+]\e[0m Entering server command session\n");
-    printf("\e[1;32m[+]\e[0m Listener started on 0.0.0.0:%s - Awaiting connection...\nType \"help\" to see command list\n\n", port);
+    printf("\n\e[1;34m[*]\e[0m Entering server command session\n");
+    printf("\e[1;32m[+]\e[0m Listener started on %s:%s - Awaiting connection...\nType \"help\" to see command list\n\n", address, port);
     return sockfd;
 }
 
