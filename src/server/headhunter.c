@@ -1,4 +1,4 @@
-// HeadHunter - Command and Control (C2) Framework and Agent Generator v1.0
+// HeadHunter - Command and Control (C2) Framework and Agent Generator v1.1
 // Author: Logan Goins
 // 
 //
@@ -104,7 +104,7 @@ void run_server(char* address, char* port) {
  ░  ░  ░   ░  ░     ░  ░   ░     ░  ░  ░   ░              ░             ░  ░   ░     
                          ░                                                           
 
-Command and Control (C2) Framework and Agent Generator v1.0
+Command and Control (C2) Framework and Agent Generator v1.1
 Author: Logan Goins
 )EOF");
 
