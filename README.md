@@ -1,5 +1,7 @@
 
-![headhunter](https://github.com/Lionskey/HeadHunter/assets/55106700/51dd0e74-ea55-4b2e-9caf-bec3dd8dcd0c)
+<p align="center">
+  <img src="https://github.com/shellph1sh/shellph1sh.github.io/assets/55106700/38a0993b-569d-4a87-9742-675d2759407f">
+</p>
 
 # HeadHunter
 HeadHunter is an adversary emulation framework and command & control (C2) server with encrypted communications along with custom agents and a server bundled agent generator with cross compilation capabilities.
