@@ -6,6 +6,7 @@
 #define BACKLOG 1
 #define MAX_CLIENTS 30
 #define PROMPT "HeadHunter/> "
+#define hunterPROMPT "HeadHunter\e[1;31m(hunter)\e[0m/> "
 
 fd_set readfds;
 int master_socket, new_socket, max_clients = MAX_CLIENTS, client_socket[MAX_CLIENTS], client_status[MAX_CLIENTS], activity, i, sd, victim_count;

