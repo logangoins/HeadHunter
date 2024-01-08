@@ -78,12 +78,12 @@ void help() {
 
 	printf("\nCommands\n--------------------------------------------------------\n");
 	printf("-h, --help                                             displays this help menu\n");
-	printf("-l, --listen <address> <port>                                    starts a listening HeadHunter server on a specified address and port\n");
+	printf("-l, --listen <address> <port>                          starts a listening HeadHunter server on a specified address and port\n");
 	printf("-g, --generate <Payload Generation Options>            generates a Hunter agent to initiate a callback\n\n");
 	printf("\nPayload Generation Options\n--------------------------------------------------------\n");
 	printf("-p, --port <port>                                      Hunter agent callback port\n");
 	printf("-o, --output <outputfile>                              file to output agent to\n");
-	printf("-w, --platform <platform>                              Hunter agent target platform (win64, win32, linux)\n");
+	printf("-w, --platform <platform>                              Hunter agent target platform (windows, win32, linux)\n");
 	printf("-f, --format <format>				       Hunter agent output format (bin, shellcode)\n");
 	printf("-l, --localhost <address>                              Hunter agent callback address\n\n");
 }
@@ -128,12 +128,12 @@ int generate_payload(char* platform, char* outfile, char* port, char* lhost, cha
 	if(strcmp(platform, "linux") == 0)
 		// gcc payload_linux.c -D PORT=port -D LHOST='"lhost"' -o outfile
 		snprintf(cmd, CMD_SIZE, "gcc /usr/lib/headhunter/payload/linux.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s", port, lhost, key, outfile);
-	else if(strcmp(platform, "win64") == 0)
+	else if(strcmp(platform, "windows") == 0)
 		// x86_64-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32", port, lhost, key, outfile);
+		snprintf(cmd, CMD_SIZE, "x86_64-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32 -mwindows", port, lhost, key, outfile);
 	else if(strcmp(platform, "win32") == 0)
 		// i686-w64-mingw32-gcc payload_win.c -D PORT=port -D LHOST='"lhost"' -o outfile -lws2_32
-		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32", port, lhost, key, outfile);
+		snprintf(cmd, CMD_SIZE, "i686-w64-mingw32-gcc /usr/lib/headhunter/payload/windows.c -fPIC -D PORT=%s -D LHOST='\"%s\"' -D KEY='\"%s\"' -o %s -lws2_32 -mwindows", port, lhost, key, outfile);
 	else{
 		printf("Please enter a valid platform.\n");
 		return 1;

