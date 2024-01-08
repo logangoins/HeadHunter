@@ -246,7 +246,7 @@ void *Socket_Writer()
 	else if(strcmp(newline_terminator(buffer), "help\n") == 0){
 		printf("\nHunter Agent v1.0 Commands\n");
 		printf("================================\n");
-		printf("\nshell <command>          task the agent to run a command\n");
+		printf("\nshell <command>            task the agent to run a command\n");
 		printf("sleep <seconds>            task the agent to sleep for a specified time\n");
 		printf("msg <message>              task the agent to execute a popup message\n");
 		printf("help                       displays this menu\n");
