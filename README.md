@@ -30,7 +30,3 @@ make && sudo make install
 ``` 
 headhunter --help
 ```
-
-## Extra Notes
-
-I am not liable for any damage caused by this software. This software is under the discretion of the end user.
